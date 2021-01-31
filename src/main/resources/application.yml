@@ -1,0 +1,55 @@
+# 开发环境配置
+server:
+  # 服务器的HTTP端口，默认为8080
+  port: 8080
+  servlet:
+    # 应用的访问路径
+    context-path: /web-shell
+  # 优雅停机，默认是IMMEDIATE立即停机
+  shutdown: graceful
+  tomcat:
+    # tomcat的URI编码
+    uri-encoding: UTF-8
+    connection-timeout: 60000
+    # tomcat最大线程数，默认为200
+    # Tomcat启动初始化的线程数，默认值25
+    threads:
+      max: 800
+      min-spare: 30
+  #  文件上传路径
+  file-path-avatar: /opt/web-shell/avatar/
+  file-path-upload: /opt/web-shell/uploadPath/
+  file-path-download: /opt/web-shell/downloadPath/
+  file-path-temp: ${server.file-path-download}temp/
+# Spring配置
+spring:
+  thymeleaf:
+    cache: false
+  application:
+    name: @project.name@
+  # 服务模块
+  devtools:
+    restart:
+      # 热部署开关
+      enabled: true
+  web:
+    resources:
+      # 静态资源的配置位置，可以写成一个数组配置多个目录
+      static-locations: classpath:/static/
+  mvc:
+    static-path-pattern: /static/**
+    view:
+      # 给返回的页面添加后缀名
+      suffix: .html
+      # 定位模板的目录
+      prefix: classpath:/templates/
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+# 日志配置
+logging:
+  config: classpath:log4j2.xml
+  level:
+    web: INFO
+    com.github.zmzhoustar: INFO
+    org.springframework: INFO

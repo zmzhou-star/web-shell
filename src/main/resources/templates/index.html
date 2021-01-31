@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+    <title>web shell</title>
+    <link rel="stylesheet" th:href="@{/static/css/xterm.css}" />
+    <script type="text/javascript" th:src="@{/static/js/xterm.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/xterm-addon-fit.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/jquery-3.5.1.min.js}"></script>
+    <style>
+        html, body{
+            width: 100%;
+            height: 100%;
+        }
+        .indexContainer{
+            width: calc(100% - 20px);
+            height: calc(100% - 30px);
+        }
+    </style>
+</head>
+<body>
+    <div id="terminal" class="indexContainer"></div>
+</body>
+<script>
+    // 获取容器宽高/字号大小，定义行数和列数
+    let rows = document.querySelector(".indexContainer").offsetHeight / 16 - 6;
+    let cols = document.querySelector(".indexContainer").offsetWidth / 14;
+    var term = new Terminal({
+        rendererType: "canvas", //渲染类型
+        pid: 1,
+        name: 'terminal',
+        rows: parseInt(rows), //行数
+        cols: parseInt(cols),
+        convertEol: true, //启用时，光标将设置为下一行的开头
+        scrollback:10,//终端中的回滚量
+        disableStdin: false, //是否应禁用输入。
+        cursorStyle: 'underline', //光标样式
+        cursorBlink: true, //光标闪烁
+        theme: {
+            foreground: 'yellow', //字体
+            background: '#060101', //背景色
+            cursor: 'help',//设置光标
+        }
+    });
+    term.open(document.getElementById('terminal'));
+    term.write('Hello from \x1B[1;3;31mxterm.js\x1B[0m $ ')
+    // 换行并输入起始符“$”
+    term.prompt = () => {
+        term.write("\r\n$ ");
+    };
+    term.prompt();
+    // canvas背景全屏-默认
+    var fitAddon = new FitAddon();
+    term.loadAddon(fitAddon);
+    fitAddon.fit();
+
+    // 内容全屏显示-窗口大小发生改变时
+    function resizeScreen(size) {
+        console.log("size", size);
+        try {
+            fitAddon.fit();
+
+            // 窗口大小改变时触发xterm的resize方法，向后端发送行列数，格式由后端决定
+            term.onResize(size => {
+                _this.onSend({ Op: "resize", Cols: size.cols, Rows: size.rows });
+            });
+        } catch (e) {
+            console.log("e", e.message);
+        }
+    }
+
+    window.addEventListener("resize", resizeScreen);
+</script>
+</html>
