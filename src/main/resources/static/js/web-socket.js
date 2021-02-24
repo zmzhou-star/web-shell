@@ -9,28 +9,28 @@ WebSocketClient.prototype._generateEndpoint = function () {
     return protocol + window.location.host + '/shell';
 }
 
-WebSocketClient.prototype.connect = function (options) {
+WebSocketClient.prototype.connect = function (params) {
     var endpoint = this._generateEndpoint();
     if (window.WebSocket) {
         //如果支持websocket
         this._connection = new WebSocket(endpoint);
     }else {
         //否则报错
-        options.onError('WebSocket Not Supported');
+        params.onError('WebSocket Not Supported');
         return;
     }
 
     this._connection.onopen = function () {
-        options.onConnect();
+        params.onConnect();
     };
 
     this._connection.onmessage = function (evt) {
         var data = evt.data.toString();
-        options.onData(data);
+        params.onData(data);
     };
 
     this._connection.onclose = function (evt) {
-        options.onClose();
+        params.onClose();
     };
 }
 
@@ -38,9 +38,9 @@ WebSocketClient.prototype.send = function (data) {
     this._connection.send(JSON.stringify(data));
 }
 
-WebSocketClient.prototype.sendInitData = function (options) {
+WebSocketClient.prototype.sendInitData = function (params) {
     //连接参数
-    this._connection.send(JSON.stringify(options));
+    this._connection.send(JSON.stringify(params));
 }
 
 WebSocketClient.prototype.sendClientData = function (data) {

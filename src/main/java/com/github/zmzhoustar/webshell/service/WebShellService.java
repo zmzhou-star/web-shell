@@ -14,6 +14,7 @@ import org.springframework.web.socket.WebSocketSession;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.zmzhoustar.webshell.Constants;
+import com.github.zmzhoustar.webshell.utils.SecretUtils;
 import com.github.zmzhoustar.webshell.utils.ThreadPoolUtils;
 import com.github.zmzhoustar.webshell.utils.WebShellUtils;
 import com.github.zmzhoustar.webshell.vo.ShellConnectInfo;
@@ -71,29 +72,25 @@ public class WebShellService {
 		String userId = WebShellUtils.getUserName(session);
 		//找到刚才存储的ssh连接对象
 		ShellConnectInfo shellConnectInfo = (ShellConnectInfo) SSH_MAP.get(userId);
-		if (Constants.OPERATE_CONNECT.equals(shellData.getOperate())) {
-			//启动线程异步处理
-			ThreadPoolUtils.execute(() -> {
-				try {
-					connectToSsh(shellConnectInfo, shellData, session);
-				} catch (JSchException | IOException e) {
-					log.error("web shell连接异常:{}", e.getMessage());
-					close(session);
-				}
-			});
-		} else if (Constants.OPERATE_COMMAND.equals(shellData.getOperate())) {
-			String command = shellData.getCommand();
-			if (shellConnectInfo != null) {
-				try {
-					transToTerminal(shellConnectInfo.getChannel(), command);
-				} catch (IOException e) {
-					log.error("web shell连接异常:{}", e.getMessage());
-					close(session);
-				}
+		if (shellConnectInfo != null) {
+			if (Constants.OPERATE_CONNECT.equals(shellData.getOperate())) {
+				//启动线程异步处理
+				ThreadPoolUtils.execute(() -> {
+					try {
+						connectToSsh(shellConnectInfo, shellData, session);
+					} catch (JSchException | IOException e) {
+						log.error("web shell连接异常:{}", e.getMessage());
+						sendMessage(session, e.getMessage().getBytes());
+						close(session);
+					}
+				});
+			} else if (Constants.OPERATE_COMMAND.equals(shellData.getOperate())) {
+				String command = shellData.getCommand();
+				transToTerminal(shellConnectInfo.getChannel(), command);
+			} else {
+				log.error("不支持的操作");
+				close(session);
 			}
-		} else {
-			log.error("不支持的操作");
-			close(session);
 		}
 	}
 
@@ -134,7 +131,7 @@ public class WebShellService {
 				sshData.getPort());
 		session.setConfig(config);
 		//设置密码
-		session.setPassword(sshData.getPassword());
+		session.setPassword(SecretUtils.decrypt(sshData.getPassword(), SecretUtils.AES_KEY));
 		//连接超时时间30s
 		session.connect(30000);
 
@@ -170,8 +167,12 @@ public class WebShellService {
 	 * @author zmzhou
 	 * @date 2021/2/23 21:18
 	 */
-	public void sendMessage(WebSocketSession session, byte[] buffer) throws IOException {
-		session.sendMessage(new TextMessage(buffer));
+	public void sendMessage(WebSocketSession session, byte[] buffer) {
+		try {
+			session.sendMessage(new TextMessage(buffer));
+		} catch (IOException e) {
+			log.error("数据写回前端异常：", e);
+		}
 	}
 	/**
 	 * 将消息转发到终端
@@ -179,11 +180,15 @@ public class WebShellService {
 	 * @author zmzhou
 	 * @date 2021/2/23 21:13
 	 */
-	private void transToTerminal(Channel channel, String command) throws IOException {
+	private void transToTerminal(Channel channel, String command) {
 		if (channel != null) {
-			OutputStream outputStream = channel.getOutputStream();
-			outputStream.write(command.getBytes());
-			outputStream.flush();
+			try {
+				OutputStream outputStream = channel.getOutputStream();
+				outputStream.write(command.getBytes());
+				outputStream.flush();
+			} catch (IOException e) {
+				log.error("web shell将消息转发到终端异常:{}", e.getMessage());
+			}
 		}
 	}
 }
