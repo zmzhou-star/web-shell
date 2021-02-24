@@ -38,10 +38,7 @@ input{
     padding: 10px;
     font-size: 13px;
     color: #fff;
-    text-shadow:1px 1px 1px;
-    border-top: 1px solid #312E3D;
-    border-left: 1px solid #312E3D;
-    border-right: 1px solid #312E3D;
+    border: 1px solid #312E3D;
     border-bottom: 1px solid #56536A;
     border-radius: 4px;
     background-color: #2D2D3F;

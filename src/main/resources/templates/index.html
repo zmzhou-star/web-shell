@@ -29,6 +29,13 @@
     <div id="terminal" class="indexContainer"></div>
 </body>
 <script>
+    // 解决第一次登录成功也跳转回登录问题
+    $(document).ready(function (){
+        let url = window.location.href;
+        if (!url.endsWith("/?#")) {
+            window.location.href = url + "?#";
+        }
+    })
     // 获取容器宽高/字号大小，定义行数和列数
     let rows = document.querySelector(".indexContainer").offsetHeight / 16 - 8;
     let cols = document.querySelector(".indexContainer").offsetWidth / 9;
