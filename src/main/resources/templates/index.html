@@ -27,8 +27,8 @@
 </body>
 <script>
     // 获取容器宽高/字号大小，定义行数和列数
-    let rows = document.querySelector(".indexContainer").offsetHeight / 16 - 9;
-    let cols = document.querySelector(".indexContainer").offsetWidth / 14;
+    let rows = document.querySelector(".indexContainer").offsetHeight / 16 - 8;
+    let cols = document.querySelector(".indexContainer").offsetWidth / 9;
     let term = new Terminal({
         rendererType: "canvas", //渲染类型
         pid: 1,
@@ -40,6 +40,8 @@
         disableStdin: false, //是否应禁用输入。
         cursorStyle: 'underline', //光标样式
         cursorBlink: true, //光标闪烁
+        tabStopWidth: 8, //制表宽度
+        screenKeys: true, //Xterm下的快捷键
         theme: {
             foreground: 'LightGreen', //字体,LightMagenta,LightGreen,Orange
             background: '#060101', //背景色
@@ -49,31 +51,14 @@
             lineHeight: 16
         }
     });
-    
+
     term.write('Hello from \x1B[1;3;31mxterm.js\x1B[0m $ ')
     // 换行并输入起始符“$”
     term.prompt = () => {
         term.write("\r\n$ ");
     };
 
-    // 内容全屏显示-窗口大小发生改变时
-    function resizeScreen(size) {
-        console.log("size", size);
-        try {
-            // fitAddon.fit();
-
-            // 窗口大小改变时触发xterm的resize方法，向后端发送行列数，格式由后端决定
-            term.onResize(size => {
-                _this.onSend({ Op: "resize", Cols: size.cols, Rows: size.rows });
-            });
-        } catch (e) {
-            console.log("e", e.message);
-        }
-    }
-
-    window.addEventListener("resize", resizeScreen);
-
-    term.open(document.getElementById('terminal'));
+    term.open(document.getElementById('terminal'), true);
 
     //在页面上显示连接中...
     term.write('\r\nConnecting...');
@@ -108,5 +93,35 @@
         //键盘输入时的回调函数
         client.sendClientData(e);
     })
+    let selection;
+    //选中复制
+    term.onSelectionChange(function() {
+        if (term.hasSelection()) {
+            selection = term.getSelection();
+        }
+    });
+    term.attachCustomKeyEventHandler(function(ev) {
+        //粘贴 ctrl+v
+        if (ev.keyCode === 86 && ev.ctrlKey) {
+            client.sendClientData("\x00" + selection);
+            selection = "";
+        }
+    });
+    // 内容全屏显示-窗口大小发生改变时
+    function resizeScreen(size) {
+        console.log("size", size);
+        term.scrollToBottom();
+        try {
+            // fitAddon.fit();
+            // 窗口大小改变时触发xterm的resize方法，向后端发送行列数，格式由后端决定
+            term.onResize(size => {
+                client.send({ Op: "resize", Cols: cols, Rows: rows });
+            });
+        } catch (e) {
+            console.log("e", e.message);
+        }
+    }
+
+    window.addEventListener("resize", resizeScreen);
 </script>
 </html>

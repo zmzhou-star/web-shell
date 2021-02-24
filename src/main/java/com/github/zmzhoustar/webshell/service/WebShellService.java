@@ -39,7 +39,7 @@ public class WebShellService {
 	private static final Map<String, Object> SSH_MAP = new ConcurrentHashMap<>();
 
 	/**
-	 * 初始化连接 
+	 * 初始化连接
 	 * @param session WebSocketSession
 	 * @author zmzhou
 	 * @date 2021/2/23 21:22
@@ -55,7 +55,7 @@ public class WebShellService {
 	}
 
 	/**
-	 * 处理客户端发送的数据 
+	 * 处理客户端发送的数据
 	 * @author zmzhou
 	 * @date 2021/2/23 21:21
 	 */
@@ -98,7 +98,7 @@ public class WebShellService {
 	}
 
 	/**
-	 * 关闭连接 
+	 * 关闭连接
 	 * @param session WebSocketSession
 	 * @author zmzhou
 	 * @date 2021/2/23 21:16
@@ -117,7 +117,7 @@ public class WebShellService {
 	}
 
 	/**
-	 * 使用jsch连接终端 
+	 * 使用jsch连接终端
 	 * @param shellConnectInfo ShellConnectInfo
 	 * @param sshData WebShellData
 	 * @param webSocketSession WebSocketSession
@@ -130,7 +130,7 @@ public class WebShellService {
 		// SSH 连接远程主机时，会检查主机的公钥。如果是第一次该主机，会显示该主机的公钥摘要，提示用户是否信任该主机
 		config.put("StrictHostKeyChecking", "no");
 		//获取jsch的会话
-		Session session = shellConnectInfo.getJsch().getSession(sshData.getUsername(), sshData.getHost(), 
+		Session session = shellConnectInfo.getJsch().getSession(sshData.getUsername(), sshData.getHost(),
 				sshData.getPort());
 		session.setConfig(config);
 		//设置密码
@@ -152,7 +152,7 @@ public class WebShellService {
 		try (InputStream inputStream = channel.getInputStream()) {
 			//循环读取
 			byte[] buffer = new byte[1024];
-			int i = 0;
+			int i;
 			//如果没有数据来，线程会一直阻塞在这个地方等待数据。
 			while ((i = inputStream.read(buffer)) != -1) {
 				sendMessage(webSocketSession, Arrays.copyOfRange(buffer, 0, i));
@@ -174,7 +174,7 @@ public class WebShellService {
 		session.sendMessage(new TextMessage(buffer));
 	}
 	/**
-	 * 将消息转发到终端 
+	 * 将消息转发到终端
 	 * @param channel Channel
 	 * @author zmzhou
 	 * @date 2021/2/23 21:13

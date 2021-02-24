@@ -2,7 +2,7 @@ function WebSocketClient() {
 }
 
 WebSocketClient.prototype._generateEndpoint = function () {
-    var protocol = 'ws://';
+    let protocol = 'ws://';
     if (window.location.protocol === 'https:') {
         protocol = 'wss://';
     }

@@ -3,7 +3,7 @@ package com.github.zmzhoustar.webshell.vo;
 import lombok.Data;
 
 /**
- * web shell数据传输 
+ * web shell数据传输
  * @title WebSSHData
  * @author zmzhou
  * @version 1.0
