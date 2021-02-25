@@ -142,8 +142,8 @@ public class WebShellService {
 		//设置channel
 		shellConnectInfo.setChannel(channel);
 
-		//转发消息
-		transToTerminal(channel, "lastlog -u " + sshData.getUsername() + "\r");
+		//查询上次登录时间
+//		transToTerminal(channel, "lastlog -u " + sshData.getUsername() + "\r");
 
 		//读取终端返回的信息流
 		try (InputStream inputStream = channel.getInputStream()) {

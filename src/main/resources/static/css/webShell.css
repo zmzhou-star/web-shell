@@ -2,27 +2,44 @@ html, body{
     width: 100%;
     height: 100%;
 }
-.indexContainer{
-    width: 100%;
-    height: calc(100% - 30px);
-}
-
 body{
     font-family: 'Open Sans',sans-serif;
     margin: 0;
     background-color: #4A374A;
 }
+.indexContainer{
+    width: 100%;
+    height: calc(100% - 30px);
+}
+.menu {
+    color: #fff;
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
+    background-color: slategray;
+}
+.menu div {
+    padding: 0 10px;
+    display: inline-block;
+    cursor: pointer;
+}
+.menu div:hover {
+    background-color: #4a77d4;
+}
+.menu div:active {
+    background-color: #3762bc;
+}
 #login{
     position: absolute;
     top: 50%;
-    left:50%;
+    left: 50%;
     margin: -150px 0 0 -150px;
     width: 300px;
     height: 300px;
 }
 #login h1{
     color: #fff;
-    text-shadow:0 0 10px;
+    text-shadow: 0 0 10px;
     letter-spacing: 1px;
     text-align: center;
 }

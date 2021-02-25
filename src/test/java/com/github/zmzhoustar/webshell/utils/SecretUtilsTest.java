@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * SecretUtilsTest
+ *
  * @author zmzhou
  * @version 1.0
  * @date 2021/2/24 16:15
@@ -15,6 +16,10 @@ import lombok.extern.slf4j.Slf4j;
 class SecretUtilsTest {
 
 	private static final String a = "12345_67890-abc";
+
+	/**
+	 * Encrypt.
+	 */
 	@Test
 	void encrypt() {
 		String res = SecretUtils.encrypt(a, SecretUtils.AES_KEY);

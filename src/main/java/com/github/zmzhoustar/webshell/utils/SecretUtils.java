@@ -2,13 +2,20 @@ package com.github.zmzhoustar.webshell.utils;
 
 
 import java.nio.charset.StandardCharsets;
+import java.security.AlgorithmParameters;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.Security;
+import java.util.Arrays;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+
+import org.apache.tomcat.util.codec.binary.Base64;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import lombok.extern.slf4j.Slf4j;
 import sun.misc.BASE64Decoder;
@@ -92,12 +99,49 @@ public final class SecretUtils {
 			throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
 		KeyGenerator generator = KeyGenerator.getInstance("AES");
 		generator.init(128);
-		SecretKeySpec key = new SecretKeySpec(aesKey.getBytes(), "AES");
+		SecretKeySpec keySpec = new SecretKeySpec(aesKey.getBytes(), "AES");
 		// 创建密码器
 		Cipher cipher = Cipher.getInstance(ALGORITHM);
 		// 初始化
-		cipher.init(decryptMode, key);
+		cipher.init(decryptMode, keySpec);
 		return cipher;
+	}
+	/**
+	 * 微信小程序加密数据解密算法
+	 * @param data 对称解密的目标密文
+	 * @param sessionKey session_key login接口获取
+	 * @param iv 对称解密算法初始向量
+	 * @return 明文
+	 * @author zmzhou
+	 * @date 2021/2/25 15:51
+	 */
+	public static String decrypt(String data, String sessionKey, String iv) {
+		byte[] dataByte = Base64.decodeBase64(data);
+		byte[] keyByte = Base64.decodeBase64(sessionKey);
+		byte[] ivByte = Base64.decodeBase64(iv);
+		int base = 16;
+		if (keyByte.length % base != 0) {
+			int groups = keyByte.length / base + 1;
+			byte[] temp = new byte[groups * base];
+			Arrays.fill(temp, (byte)0);
+			System.arraycopy(keyByte, 0, temp, 0, keyByte.length);
+			keyByte = temp;
+		}
+		try {
+			Security.addProvider(new BouncyCastleProvider());
+			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7Padding", "BC");
+			SecretKeySpec spec = new SecretKeySpec(keyByte, "AES");
+			AlgorithmParameters parameters = AlgorithmParameters.getInstance("AES");
+			parameters.init(new IvParameterSpec(ivByte));
+			cipher.init(2, spec, parameters);
+			byte[] resultByte = cipher.doFinal(dataByte);
+			if (null != resultByte && resultByte.length > 0) {
+				return new String(resultByte, StandardCharsets.UTF_8);
+			}
+		} catch (Exception e) {
+			log.error("对称解密错误：", e);
+		}
+		return null;
 	}
 
 	private SecretUtils() {
