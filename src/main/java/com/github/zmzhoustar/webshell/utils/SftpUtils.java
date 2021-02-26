@@ -11,7 +11,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.Vector;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 
+import com.github.zmzhoustar.webshell.Constants;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
@@ -33,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class SftpUtils {
 
-	private ChannelSftp sftp;
+	private ChannelSftp channelSftp;
 	private Session session;
 
 	/**
@@ -97,13 +99,13 @@ public final class SftpUtils {
 	public void login() {
 		JSch jsch = new JSch();
 		try {
-			if (privateKey != null) {
+			if (StringUtils.isNotBlank(privateKey)) {
 				//设置登陆主机的秘钥
 				jsch.addIdentity(privateKey);
 			}
 			//采用指定的端口连接服务器
 			session = jsch.getSession(username, host, port);
-			if (password != null) {
+			if (StringUtils.isNotBlank(password)) {
 				//设置登陆主机的密码
 				session.setPassword(password);
 			}
@@ -115,7 +117,7 @@ public final class SftpUtils {
 			//创建sftp通信通道
 			Channel channel = session.openChannel("sftp");
 			channel.connect();
-			sftp = (ChannelSftp) channel;
+			channelSftp = (ChannelSftp) channel;
 			log.info("sftp server connect success !!");
 		} catch (JSchException e) {
 			log.error("SFTP服务器连接异常！！", e);
@@ -126,9 +128,9 @@ public final class SftpUtils {
 	 * 关闭SFTP连接
 	 */
 	public void logout() {
-		if (sftp != null) {
-			if (sftp.isConnected()) {
-				sftp.disconnect();
+		if (channelSftp != null) {
+			if (channelSftp.isConnected()) {
+				channelSftp.disconnect();
 				log.info("sftp is close already");
 			}
 		}
@@ -152,17 +154,17 @@ public final class SftpUtils {
 		long start = System.currentTimeMillis();
 		try {
 			//如果文件夹不存在，则创建文件夹
-			if (sftp.ls(directory) == null) {
-				sftp.mkdir(directory);
+			if (channelSftp.ls(directory) == null) {
+				channelSftp.mkdir(directory);
 			}
 			//切换到指定文件夹
-			sftp.cd(directory);
+			channelSftp.cd(directory);
 		} catch (SftpException e) {
 			//创建不存在的文件夹，并切换到文件夹
-			sftp.mkdir(directory);
-			sftp.cd(directory);
+			channelSftp.mkdir(directory);
+			channelSftp.cd(directory);
 		}
-		sftp.put(input, sftpFileName);
+		channelSftp.put(input, sftpFileName);
 		log.info("文件上传成功！！ 耗时：{}ms", (System.currentTimeMillis() - start));
 	}
 
@@ -223,10 +225,10 @@ public final class SftpUtils {
 	public void download(String directory, String downloadFile, String saveFile) {
 		try {
 			if (directory != null && !"".equals(directory)) {
-				sftp.cd(directory);
+				channelSftp.cd(directory);
 			}
 			File file = new File(saveFile);
-			sftp.get(downloadFile, new FileOutputStream(file));
+			channelSftp.get(downloadFile, new FileOutputStream(file));
 		} catch (SftpException | FileNotFoundException e) {
 			log.error("文件下载异常！", e);
 		}
@@ -242,9 +244,9 @@ public final class SftpUtils {
 	public byte[] download(String directory, String downloadFile) {
 		try {
 			if (directory != null && !"".equals(directory)) {
-				sftp.cd(directory);
+				channelSftp.cd(directory);
 			}
-			InputStream inputStream = sftp.get(downloadFile);
+			InputStream inputStream = channelSftp.get(downloadFile);
 			return IOUtils.toByteArray(inputStream);
 		} catch (SftpException | IOException e) {
 			log.error("文件下载异常！", e);
@@ -262,9 +264,9 @@ public final class SftpUtils {
 	public InputStream downloadStream(String directory, String downloadFile) {
 		try {
 			if (directory != null && !"".equals(directory)) {
-				sftp.cd(directory);
+				channelSftp.cd(directory);
 			}
-			return sftp.get(downloadFile);
+			return channelSftp.get(downloadFile);
 		} catch (SftpException e) {
 			log.error("文件下载异常！", e);
 		}
@@ -279,8 +281,8 @@ public final class SftpUtils {
 	 */
 	public void delete(String directory, String deleteFileName) {
 		try {
-			sftp.cd(directory);
-			sftp.rm(deleteFileName);
+			channelSftp.cd(directory);
+			channelSftp.rm(deleteFileName);
 		} catch (SftpException e) {
 			log.error("文件删除异常！", e);
 		}
@@ -298,8 +300,8 @@ public final class SftpUtils {
 		for (Object v : vector) {
 			ChannelSftp.LsEntry lsEntry = (ChannelSftp.LsEntry) v;
 			try {
-				sftp.cd(directory);
-				sftp.rm(lsEntry.getFilename());
+				channelSftp.cd(directory);
+				channelSftp.rm(lsEntry.getFilename());
 			} catch (SftpException e) {
 				log.error("文件删除异常！", e);
 			}
@@ -315,7 +317,7 @@ public final class SftpUtils {
 	public Vector<?> listFiles(String directory) {
 		try {
 			if (isDirExist(directory)) {
-				Vector<?> vector = sftp.ls(directory);
+				Vector<?> vector = channelSftp.ls(directory);
 				//移除上级目录和根目录："." ".."
 				vector.remove(0);
 				vector.remove(0);
@@ -331,17 +333,18 @@ public final class SftpUtils {
 	 * 检测文件夹是否存在
 	 *
 	 * @param directory 路径
-	 * @return
+	 * @author zmzhou
+	 * @date 2021/2/26 15:31
 	 */
-	public boolean booleanUrl(String directory) {
+	public boolean exists(String directory) {
 		try {
-			if (sftp.ls(directory) == null) {
-				return false;
+			if (channelSftp.ls(directory) != null) {
+				return true;
 			}
 		} catch (Exception e) {
 			log.error("检测文件夹异常！", e);
 		}
-		return true;
+		return false;
 	}
 
 	/**
@@ -353,26 +356,26 @@ public final class SftpUtils {
 	public boolean createDir(String createpath) {
 		try {
 			if (isDirExist(createpath)) {
-				this.sftp.cd(createpath);
+				this.channelSftp.cd(createpath);
 				return true;
 			}
-			String[] pathArry = createpath.split("/");
-			StringBuilder filePath = new StringBuilder("/");
-			for (String path : pathArry) {
+			String[] pathArray = createpath.split(Constants.SEPARATOR);
+			StringBuilder filePath = new StringBuilder(Constants.SEPARATOR);
+			for (String path : pathArray) {
 				if ("".equals(path)) {
 					continue;
 				}
-				filePath.append(path + "/");
+				filePath.append(path).append(Constants.SEPARATOR);
 				if (isDirExist(filePath.toString())) {
-					sftp.cd(filePath.toString());
+					channelSftp.cd(filePath.toString());
 				} else {
 					// 建立目录
-					sftp.mkdir(filePath.toString());
+					channelSftp.mkdir(filePath.toString());
 					// 进入并设置为当前目录
-					sftp.cd(filePath.toString());
+					channelSftp.cd(filePath.toString());
 				}
 			}
-			this.sftp.cd(createpath);
+			this.channelSftp.cd(createpath);
 		} catch (SftpException e) {
 			log.error("目录创建异常！", e);
 			return false;
@@ -388,7 +391,7 @@ public final class SftpUtils {
 	 */
 	public boolean isDirExist(String directory) {
 		try {
-			SftpATTRS attrs = this.sftp.lstat(directory);
+			SftpATTRS attrs = this.channelSftp.lstat(directory);
 			return attrs.isDir();
 		} catch (Exception e) {
 			log.error("判断目录是否存在:", e);
@@ -427,5 +430,23 @@ public final class SftpUtils {
 			log.error("判断文件或目录是否存在:", e);
 		}
 		return isExist;
+	}
+
+	/**
+	 * Gets channel sftp.
+	 *
+	 * @return the channel sftp
+	 */
+	public ChannelSftp getChannelSftp() {
+		return channelSftp;
+	}
+
+	/**
+	 * Gets session.
+	 *
+	 * @return the session
+	 */
+	public Session getSession() {
+		return session;
 	}
 }

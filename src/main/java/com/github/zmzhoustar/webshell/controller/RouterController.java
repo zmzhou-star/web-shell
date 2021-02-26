@@ -1,7 +1,10 @@
 package com.github.zmzhoustar.webshell.controller;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+
+import com.alibaba.fastjson.JSON;
 
 /**
  * 路由控制类
@@ -14,12 +17,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class RouterController {
 	/**
-	 * index 
+	 * index
 	 * @author zmzhou
 	 * @date 2021/1/30 23:33
 	 */
-	@RequestMapping({"/", "/index"})
+	@GetMapping({"/", "/index"})
 	public String index() {
 		return "index";
+	}
+
+	/**
+	 * sftp
+	 * @author zmzhou
+	 * @date 2021/2/26 16:40
+	 */
+	@GetMapping("/sftp")
+	public String sftp(String params, Model model) {
+		model.addAttribute("params", JSON.parseObject(params));
+		return "sftp";
 	}
 }

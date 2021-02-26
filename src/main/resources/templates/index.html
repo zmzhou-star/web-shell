@@ -26,9 +26,9 @@
             <button class="button" type="submit">登录</button>
         </form>
     </div>
-    <div id="menu" class="menu">
+    <div id="menu" class="menu" style="display: none">
         <label>菜单</label>
-        <div>SFTP</div>
+        <div onclick="loginSftp()">SFTP</div>
     </div>
     <div id="terminal" class="indexContainer"></div>
 </body>
@@ -76,10 +76,11 @@
 
     /**
      * 执行连接操作
-     * @param params 连接参数
+     * @param {Object} params 连接参数
+     * @param {String} divId 显示控件id
      */
-    function connect(params) {
-        term.open(document.getElementById('terminal'), true);
+    function connect(params, divId) {
+        term.open(document.getElementById(divId), true);
         //在页面上显示连接中...
         term.write('\r\nConnecting...');
         //执行连接操作
@@ -92,6 +93,7 @@
                 //连接主机
                 client.sendInitData(params);
                 $("#login").hide();
+                $("#menu").show();
             },
             onClose: function () {
                 //连接关闭回调
@@ -115,8 +117,9 @@
         username: '',//用户名
         password: ''//密码
     }
-    // connect(params)
+    // connect(params, 'terminal')
 
+    let loginParams = {};
     function login() {
         let params = {
             operate:'connect',
@@ -125,9 +128,15 @@
             username: $("#username").val(),//用户名
             password: encrypt($("#password").val())//密码
         }
-        connect(params)
+        loginParams = params;
+        connect(params, 'terminal')
     }
-
+    // login()
+    /** 连接SFTP服务 */
+    function loginSftp() {
+        loginParams.operate = 'sftp'
+        window.open(window.location.href.replace('?#', 'sftp?params=' + encodeURI(JSON.stringify(loginParams))))
+    }
     let selection;
     //选中复制
     term.onSelectionChange(function() {

@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import org.springframework.web.socket.WebSocketSession;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.zmzhoustar.webshell.Constants;
 import com.github.zmzhoustar.webshell.utils.SecretUtils;
+import com.github.zmzhoustar.webshell.utils.SftpUtils;
 import com.github.zmzhoustar.webshell.utils.ThreadPoolUtils;
 import com.github.zmzhoustar.webshell.utils.WebShellUtils;
 import com.github.zmzhoustar.webshell.vo.ShellConnectInfo;
@@ -78,7 +80,7 @@ public class WebShellService {
 				ThreadPoolUtils.execute(() -> {
 					try {
 						connectToSsh(shellConnectInfo, shellData, session);
-					} catch (JSchException | IOException e) {
+					} catch (JSchException e) {
 						log.error("web shell连接异常:{}", e.getMessage());
 						sendMessage(session, e.getMessage().getBytes());
 						close(session);
@@ -86,7 +88,9 @@ public class WebShellService {
 				});
 			} else if (Constants.OPERATE_COMMAND.equals(shellData.getOperate())) {
 				String command = shellData.getCommand();
-				transToTerminal(shellConnectInfo.getChannel(), command);
+				sendToTerminal(shellConnectInfo.getChannel(), command);
+			} else if (Constants.OPERATE_SFTP.equals(shellData.getOperate())) {
+				connectToSftp(shellConnectInfo, shellData, session);
 			} else {
 				log.error("不支持的操作");
 				close(session);
@@ -122,7 +126,7 @@ public class WebShellService {
 	 * @date 2021/2/23 21:15
 	 */
 	private void connectToSsh(ShellConnectInfo shellConnectInfo, WebShellData sshData, WebSocketSession webSocketSession)
-			throws JSchException, IOException {
+			throws JSchException {
 		Properties config = new Properties();
 		// SSH 连接远程主机时，会检查主机的公钥。如果是第一次该主机，会显示该主机的公钥摘要，提示用户是否信任该主机
 		config.put("StrictHostKeyChecking", "no");
@@ -143,22 +147,42 @@ public class WebShellService {
 		shellConnectInfo.setChannel(channel);
 
 		//查询上次登录时间
-//		transToTerminal(channel, "lastlog -u " + sshData.getUsername() + "\r");
+//		sendToTerminal(channel, "lastlog -u " + sshData.getUsername() + "\r");
 
 		//读取终端返回的信息流
 		try (InputStream inputStream = channel.getInputStream()) {
 			//循环读取
-			byte[] buffer = new byte[1024];
+			byte[] buffer = new byte[Constants.BUFFER_SIZE];
 			int i;
 			//如果没有数据来，线程会一直阻塞在这个地方等待数据。
 			while ((i = inputStream.read(buffer)) != -1) {
 				sendMessage(webSocketSession, Arrays.copyOfRange(buffer, 0, i));
 			}
+		} catch (IOException e) {
+			log.error("读取终端返回的信息流异常：", e);
 		} finally {
 			//断开连接后关闭会话
 			session.disconnect();
 			channel.disconnect();
 		}
+	}
+
+	/**
+	 * 使用jsch连接SFTP终端
+	 * @param connectInfo ShellConnectInfo
+	 * @param sshData WebShellData
+	 * @param socketSession WebSocketSession
+	 * @author zmzhou
+	 * @date 2021/2/26 15:01
+	 */
+	private void connectToSftp(ShellConnectInfo connectInfo, WebShellData sshData, WebSocketSession socketSession) {
+		SftpUtils sftpUtils = new SftpUtils(sshData.getUsername(),
+				SecretUtils.decrypt(sshData.getPassword(), SecretUtils.AES_KEY),
+				sshData.getHost(), sshData.getPort());
+		sftpUtils.login();
+		Vector<?> list = sftpUtils.listFiles("/opt");
+		assert list != null;
+		sendMessage(socketSession, Arrays.toString(list.toArray()).getBytes());
 	}
 
 	/**
@@ -180,7 +204,7 @@ public class WebShellService {
 	 * @author zmzhou
 	 * @date 2021/2/23 21:13
 	 */
-	private void transToTerminal(Channel channel, String command) {
+	private void sendToTerminal(Channel channel, String command) {
 		if (channel != null) {
 			try {
 				OutputStream outputStream = channel.getOutputStream();
