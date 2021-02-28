@@ -5,7 +5,7 @@ html, body{
 body{
     font-family: 'Open Sans',sans-serif;
     margin: 0;
-    background-color: #4A374A;
+    background-color: slategray;
 }
 .indexContainer{
     width: 100%;
@@ -47,7 +47,7 @@ h1{
     font-size: 2em;
     margin: 0.67em 0;
 }
-input{
+.login input{
     width: 278px;
     height: 18px;
     margin-bottom: 10px;
@@ -72,4 +72,42 @@ input{
     line-height: normal;
     border-radius: 5px;
     margin: 0;
+}
+.sftp-container > div{
+    float: left;
+    border: 2px solid #3762bc;
+}
+.sftp-container{
+    width: 100%;
+    height: 100%;
+}
+.sftp-file-tree-div{
+    width: calc(30% - 8px);
+    height: 80%;
+}
+.sftp-file-tree-div input{
+    padding: 0 15px;
+    height: 30px;
+    width: calc(100% - 38px);
+    background-color: slategray;
+    color: #fff;
+}
+.sftp-file-tree-div .sftp-file-tree{
+    width: 100%;
+    height: calc(100% - 30px);
+}
+.sftp-file-detail{
+    width: 70%;
+    height: 80%;
+}
+.sftp-message-console {
+    width: calc(100% - 4px);
+    height: calc(20% - 8px);
+}
+input::-webkit-input-placeholder{
+    color: whitesmoke;
+}
+/* Mozilla Firefox 19+ */
+input::-moz-placeholder{
+    color: whitesmoke;
 }

@@ -16,12 +16,12 @@
     <script type="text/javascript" th:src="@{/static/js/web-shell.js}"></script>
 </head>
 <body>
-    <div id="login">
+    <div id="login" class="login">
         <h1>登录Linux远程主机</h1>
         <form action="#" onsubmit="login()">
             <input type="text" id="host" required="required" placeholder="主机IP"/>
             <input type="text" id="username" value="root" required="required" placeholder="用户名" />
-            <input type="password" id="password" required="required" placeholder="密码" />
+            <input type="password" id="password" required="required" placeholder="密码"/>
             <input type="text" id="port" value="22" required="required" placeholder="端口" />
             <button class="button" type="submit">登录</button>
         </form>

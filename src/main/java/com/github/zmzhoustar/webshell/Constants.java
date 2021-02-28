@@ -13,6 +13,10 @@ public final class Constants {
      */
     public static final String SEPARATOR = "/";
     /**
+     * 减号
+     */
+    public static final String MINUS = "-";
+    /**
      * 缓存字符长度
      */
     public static final int BUFFER_SIZE = 2048;

@@ -96,7 +96,7 @@ public final class SftpUtils {
 	/**
 	 * 连接SFTP服务器
 	 */
-	public void login() {
+	public boolean login() {
 		JSch jsch = new JSch();
 		try {
 			if (StringUtils.isNotBlank(privateKey)) {
@@ -121,7 +121,9 @@ public final class SftpUtils {
 			log.info("sftp server connect success !!");
 		} catch (JSchException e) {
 			log.error("SFTP服务器连接异常！！", e);
+			return false;
 		}
+		return true;
 	}
 
 	/**
@@ -294,7 +296,7 @@ public final class SftpUtils {
 	 * @param directory SFTP服务器的文件路径
 	 */
 	public void delete(String directory) {
-		Vector vector = listFiles(directory);
+		Vector<?> vector = listFiles(directory);
 		vector.remove(0);
 		vector.remove(0);
 		for (Object v : vector) {
@@ -350,32 +352,30 @@ public final class SftpUtils {
 	/**
 	 * 创建一个文件目录
 	 *
-	 * @param createpath 路径
+	 * @param createPath 路径
 	 * @return
 	 */
-	public boolean createDir(String createpath) {
+	public boolean createDir(String createPath) {
 		try {
-			if (isDirExist(createpath)) {
-				this.channelSftp.cd(createpath);
+			if (isDirExist(createPath)) {
+				this.channelSftp.cd(createPath);
 				return true;
 			}
-			String[] pathArray = createpath.split(Constants.SEPARATOR);
+			String[] pathArray = createPath.split(Constants.SEPARATOR);
 			StringBuilder filePath = new StringBuilder(Constants.SEPARATOR);
 			for (String path : pathArray) {
 				if ("".equals(path)) {
 					continue;
 				}
 				filePath.append(path).append(Constants.SEPARATOR);
-				if (isDirExist(filePath.toString())) {
-					channelSftp.cd(filePath.toString());
-				} else {
+				if (!isDirExist(filePath.toString())) {
 					// 建立目录
 					channelSftp.mkdir(filePath.toString());
 					// 进入并设置为当前目录
-					channelSftp.cd(filePath.toString());
 				}
+				channelSftp.cd(filePath.toString());
 			}
-			this.channelSftp.cd(createpath);
+			this.channelSftp.cd(createPath);
 		} catch (SftpException e) {
 			log.error("目录创建异常！", e);
 			return false;

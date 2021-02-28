@@ -5,7 +5,7 @@
     <title>web sftp</title>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
     <link rel="shortcut icon" th:href="@{/static/img/favicon.ico}"/>
-<!--    <link rel="stylesheet" th:href="@{/static/css/webShell.css}"/>-->
+    <link rel="stylesheet" th:href="@{/static/css/webShell.css}"/>
     <link rel="stylesheet" th:href="@{/static/css/jstree/style.min.css}"/>
     <script type="text/javascript" th:src="@{/static/js/jquery-3.5.1.min.js}"></script>
     <script type="text/javascript" th:src="@{/static/js/web-socket.js}"></script>
@@ -13,39 +13,44 @@
     <script type="text/javascript" th:src="@{/static/js/jstree.min.js}"></script>
 </head>
 <body>
-    <div id="jstree_linux_div" class="indexContainer"></div>
+    <div class="sftp-container">
+        <div class="sftp-file-tree-div">
+            <input id="current_path" placeholder="当前目录" value="/">
+            <div id="file_tree" class="sftp-file-tree"></div>
+        </div>
+        <div id="file_detail" class="sftp-file-detail"></div>
+        <div id="message_console" class="sftp-message-console"></div>
+    </div>
 </body>
 <script th:inline="javascript">
 $(function () {
     let url = window.location.href;
     let urlParams = window.location.search;
     history.replaceState(null, null, url.replace(urlParams, ""))
-    const params = [[${params}]];
-    if (!params) {
-        alert("请重新连接SFTP服务！")
+    const login = [[${login}]];
+    if (!login) {
+        alert("登录失败，请重新连接SFTP服务！")
     }
-    console.log(params);
-    let client = new WebSocketClient();
-    client.connect({
-        onError: function (error) {
-            //连接失败回调
-            console.error(error)
-            alert(error)
-        },
-        onConnect: function () {
-            //连接主机SFTP
-            client.sendInitData(params);
-        },
-        onClose: function () {
-            //连接关闭回调
-        },
-        onData: function (data) {
-            //收到数据时回调
-            console.log(data)
+    let fileTree = [[${fileTree}]];
+    // 根目录
+    let rootDirectory = { "id" : "/", "parent" : "#", "text" : "/", 'state' : { 'opened' : true }}
+    fileTree.unshift(rootDirectory)
+    console.log(fileTree);
+    $('#file_tree').on("changed.jstree", function (e, data) {
+        if(data.selected.length) {
+            console.log('The selected node is: ' + data.instance.get_node(data.selected[0]).id);
+            $("#current_path").val(data.instance.get_node(data.selected[0]).id)
         }
+    }).jstree({
+        "core" : {
+            "multiple" : false,
+            'data' : fileTree
+        },
+        "checkbox" : {
+            "keep_selected_style" : false
+        },
+        "plugins" : [ "wholerow", "checkbox" ]
     });
-    $.jstree.defaults.core.themes.variant = "large";
-    $('#jstree_linux_div').jstree();
 });
 </script>
 </html>
