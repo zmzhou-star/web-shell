@@ -2,15 +2,17 @@ package com.github.zmzhoustar.webshell;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 
 /**
- * 程序入口 
+ * 程序入口
  * @title WebShellApplication
  * @author zmzhou
  * @version 1.0
  * @date 2021/1/30 23:00
  */
 @SpringBootApplication
+@EnableCaching
 public class WebShellApplication {
 
 	public static void main(String[] args) {

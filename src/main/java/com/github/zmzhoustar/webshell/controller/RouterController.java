@@ -1,19 +1,14 @@
 package com.github.zmzhoustar.webshell.controller;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import com.alibaba.fastjson.JSON;
+import com.github.zmzhoustar.webshell.utils.EhCacheUtils;
 import com.github.zmzhoustar.webshell.utils.SecretUtils;
-import com.github.zmzhoustar.webshell.utils.SftpFileUtils;
 import com.github.zmzhoustar.webshell.utils.SftpUtils;
-import com.github.zmzhoustar.webshell.utils.SpringUtils;
-import com.github.zmzhoustar.webshell.vo.SftpFileTreeVo;
+import com.github.zmzhoustar.webshell.utils.WebShellUtils;
 import com.github.zmzhoustar.webshell.vo.WebShellData;
 
 import lombok.extern.slf4j.Slf4j;
@@ -29,9 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Controller
 public class RouterController {
-	/** 存放ssh连接信息的map */
-	private static final Map<String, WebShellData> SFTP_MAP = new ConcurrentHashMap<>();
-	
+
 	/**
 	 * index
 	 * @author zmzhou
@@ -49,13 +42,14 @@ public class RouterController {
 	 */
 	@GetMapping("/sftp")
 	public String sftp(String params, Model model) {
-		String sessionId = SpringUtils.getSession().getId();
+		String sessionId = WebShellUtils.getSessionId();
 		log.info("sessionId：{}", sessionId);
 		WebShellData sshData = JSON.parseObject(params, WebShellData.class);
+		// 存放ssh连接信息
 		if (sshData != null) {
-			SFTP_MAP.put(sessionId, sshData);
+			EhCacheUtils.put(sessionId, sshData);
 		} else {
-			sshData = SFTP_MAP.get(sessionId);
+			sshData = EhCacheUtils.get(sessionId);
 		}
 		if (sshData != null) {
 			SftpUtils sftpUtils = new SftpUtils(sshData.getUsername(),
@@ -64,8 +58,7 @@ public class RouterController {
 			boolean login = sftpUtils.login();
 			// 登录成功状态
 			model.addAttribute("login", login);
-			List<SftpFileTreeVo> fileTree = SftpFileUtils.getFileTree(sftpUtils, "/");
-			model.addAttribute("fileTree", fileTree);
+			sftpUtils.logout();
 		}
 		return "sftp";
 	}

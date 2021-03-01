@@ -1,5 +1,7 @@
 package com.github.zmzhoustar.webshell.vo;
 
+import java.io.Serializable;
+
 import org.springframework.web.socket.WebSocketSession;
 
 import com.jcraft.jsch.Channel;
@@ -15,7 +17,9 @@ import lombok.Data;
  * @date 2021/2/23 21:05
  */
 @Data
-public class ShellConnectInfo {
+public class ShellConnectInfo implements Serializable {
+	/** serialVersionUID */
+	private static final long serialVersionUID = 1555506471798748444L;
 	/** WebSocketSession */
 	private WebSocketSession webSocketSession;
 	/** JSch是SSH2的一个纯Java实现 */

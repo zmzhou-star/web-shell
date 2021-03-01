@@ -17,6 +17,14 @@ public final class Constants {
      */
     public static final String MINUS = "-";
     /**
+     * 点
+     */
+    public static final String DOT = ".";
+    /**
+     * 上级目录
+     */
+    public static final String PARENT_DIRECTORY = "..";
+    /**
      * 缓存字符长度
      */
     public static final int BUFFER_SIZE = 2048;
@@ -37,6 +45,9 @@ public final class Constants {
      */
     public static final String OPERATE_SFTP = "sftp";
 
-    private Constants() {
+    /** 1kb */
+	public static final long KB = 1024L;
+
+	private Constants() {
     }
 }

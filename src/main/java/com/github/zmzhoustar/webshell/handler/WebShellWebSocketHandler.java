@@ -32,20 +32,20 @@ public class WebShellWebSocketHandler implements WebSocketHandler {
 	private WebShellService webShellService;
 
 	/**
-	 * 用户连接上WebSocket回调 
+	 * 用户连接上WebSocket回调
 	 * @param webSocketSession WebSocketSession
 	 * @author zmzhou
 	 * @date 2021/2/23 20:35
 	 */
 	@Override
 	public void afterConnectionEstablished(WebSocketSession webSocketSession) {
-		log.info("用户:{},连接Web Shell", WebShellUtils.getUserName(webSocketSession));
+		log.info("用户:{},连接Web Shell", WebShellUtils.getUuid(webSocketSession));
 		//调用初始化连接
 		webShellService.initConnection(webSocketSession);
 	}
 
 	/**
-	 * 收到消息回调 
+	 * 收到消息回调
 	 * @param webSocketSession WebSocketSession
 	 * @param webSocketMessage WebSocketMessage
 	 * @author zmzhou
@@ -54,7 +54,7 @@ public class WebShellWebSocketHandler implements WebSocketHandler {
 	@Override
 	public void handleMessage(WebSocketSession webSocketSession, WebSocketMessage<?> webSocketMessage) {
 		if (webSocketMessage instanceof TextMessage) {
-			log.info("用户:{},发送命令:{}", WebShellUtils.getUserName(webSocketSession), webSocketMessage.getPayload());
+			log.info("用户:{},发送命令:{}", WebShellUtils.getUuid(webSocketSession), webSocketMessage.getPayload());
 			//调用service接收消息
 			webShellService.recvHandle(((TextMessage) webSocketMessage).getPayload(), webSocketSession);
 		} else if (webSocketMessage instanceof BinaryMessage) {
@@ -67,25 +67,25 @@ public class WebShellWebSocketHandler implements WebSocketHandler {
 	}
 
 	/**
-	 * 错误的回调 
+	 * 错误的回调
 	 * @param webSocketSession WebSocketSession
 	 * @author zmzhou
 	 * @date 2021/2/23 20:41
 	 */
 	@Override
 	public void handleTransportError(WebSocketSession webSocketSession, Throwable throwable) {
-		log.error("用户:{},数据传输错误:{}", WebShellUtils.getUserName(webSocketSession), throwable);
+		log.error("用户:{},数据传输错误:{}", WebShellUtils.getUuid(webSocketSession), throwable);
 	}
 
 	/**
-	 * 连接关闭的回调 
+	 * 连接关闭的回调
 	 * @param webSocketSession WebSocketSession
 	 * @author zmzhou
 	 * @date 2021/2/23 20:43
 	 */
 	@Override
 	public void afterConnectionClosed(WebSocketSession webSocketSession, CloseStatus closeStatus) {
-		log.info("用户:{},断开webSocket连接:{}", WebShellUtils.getUserName(webSocketSession), closeStatus);
+		log.info("用户:{},断开webSocket连接:{}", WebShellUtils.getUuid(webSocketSession), closeStatus);
 		//调用service关闭连接
 		webShellService.close(webSocketSession);
 	}

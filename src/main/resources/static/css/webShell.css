@@ -94,15 +94,19 @@ h1{
 }
 .sftp-file-tree-div .sftp-file-tree{
     width: 100%;
-    height: calc(100% - 30px);
+    height: calc(100% - 40px);
+    overflow-y: scroll;
 }
 .sftp-file-detail{
     width: 70%;
     height: 80%;
+    overflow-y: scroll;
 }
 .sftp-message-console {
     width: calc(100% - 4px);
     height: calc(20% - 8px);
+    color: whitesmoke;
+    font-size: 20px;
 }
 input::-webkit-input-placeholder{
     color: whitesmoke;
@@ -110,4 +114,45 @@ input::-webkit-input-placeholder{
 /* Mozilla Firefox 19+ */
 input::-moz-placeholder{
     color: whitesmoke;
+}
+
+.file-detail-table {
+    width: 100%;
+}
+.file-detail-table tr{
+    width: 100%;
+    height: 20px;
+    line-height: 20px;
+}
+table.file-detail-table {
+    font-family: verdana,arial,sans-serif;
+    font-size:11px;
+    color:#333333;
+    border-width: 1px;
+    border-color: #a9c6c9;
+    border-collapse: collapse;
+}
+table.file-detail-table th {
+    border-width: 1px;
+    padding: 8px;
+    border-style: solid;
+    border-color: #a9c6c9;
+}
+table.file-detail-table td {
+    border-width: 1px;
+    padding: 8px;
+    border-style: solid;
+    border-color: #a9c6c9;
+}
+.odd-row{
+    background-color:#d4e3e5;
+}
+.even-row{
+    background-color:#c3dde0;
+}
+.file-detail-table tr:hover{
+    background-color: #dcddc0;
+}
+.data-cell .file-name {
+    cursor: pointer;
 }

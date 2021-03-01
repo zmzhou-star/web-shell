@@ -18,7 +18,19 @@
             <input id="current_path" placeholder="当前目录" value="/">
             <div id="file_tree" class="sftp-file-tree"></div>
         </div>
-        <div id="file_detail" class="sftp-file-detail"></div>
+        <div id="file_detail" class="sftp-file-detail">
+            <table border="0" class="file-detail-table">
+                <tr>
+                    <th>文件名</th>
+                    <th>文件属性</th>
+                    <th>目录/链接个数</th>
+                    <th>所有者</th>
+                    <th>组</th>
+                    <th>文件大小</th>
+                    <th>修改时间</th>
+                </tr>
+            </table>
+        </div>
         <div id="message_console" class="sftp-message-console"></div>
     </div>
 </body>
@@ -31,20 +43,92 @@ $(function () {
     if (!login) {
         alert("登录失败，请重新连接SFTP服务！")
     }
-    let fileTree = [[${fileTree}]];
+    function showTips(msg) {
+        $("#message_console").html(new Date().toLocaleTimeString() + "：" + msg);
+    }
+    function checkErr(data) {
+        if (data.code === 200) {
+            showTips("查询成功！");
+        } else {
+            showTips("查询失败！");
+        }
+    }
+    function getFileTree(instance, selectedNode) {
+        $.ajax({
+            url : "/sftp/getFileTree",
+            dataType : "json",
+            data: { 'path': selectedNode.id },
+            type : "get",
+            success : function(res) {
+                console.info(res);
+                checkErr(res)
+                let fileTree = res.data
+                if(fileTree && fileTree.length > 0) {
+                    selectedNode.children = [];
+                    let fileDetail = "";
+                    $(".file-detail-table .data-cell").remove();
+                    for (const i in fileTree) {
+                        let item = fileTree[i];
+                        instance.create_node(selectedNode, item, "last");
+
+                        let className = "odd-row";
+                        if(i % 2 === 0){
+                            className = "even-row";
+                        }
+                        fileDetail += "<tr class='data-cell " + className + "'><td class='file-name'>"+ item.text +"</td>";
+                        fileDetail += "<td>"+ item.fileAttr +"</td>";
+                        fileDetail += "<td>"+ item.numberOfDir +"</td>";
+                        fileDetail += "<td>"+ item.owner +"</td>";
+                        fileDetail += "<td>"+ item.group +"</td>";
+                        fileDetail += "<td>"+ item.size +"</td>";
+                        fileDetail += "<td>"+ item.modifiedDate +"</td></tr>";
+                    }
+                    $(".file-detail-table").append(fileDetail);
+                    instance.open_node(selectedNode);
+                    //全不选择
+                    instance.deselect_all()
+                }else{
+                    showTips("暂无数据！");
+                }
+            }
+        });
+    }
     // 根目录
-    let rootDirectory = { "id" : "/", "parent" : "#", "text" : "/", 'state' : { 'opened' : true }}
-    fileTree.unshift(rootDirectory)
-    console.log(fileTree);
+    let rootDirectory = { "id": "/", "parent": "#", "text": "/", 'state': { 'opened': true }}
     $('#file_tree').on("changed.jstree", function (e, data) {
+        console.info(data);
         if(data.selected.length) {
-            console.log('The selected node is: ' + data.instance.get_node(data.selected[0]).id);
-            $("#current_path").val(data.instance.get_node(data.selected[0]).id)
+            let selected = data.instance.get_node(data.selected[0])
+            console.log('The selected node is: ' + selected.id);
+            $("#current_path").val(selected.id)
+            // 只查询文件夹的下一级文件
+            if ("jstree-folder" === selected.icon) {
+                getFileTree(data.instance, selected)
+            }
         }
     }).jstree({
         "core" : {
             "multiple" : false,
-            'data' : fileTree
+            'check_callback': true,
+            'data' : function (obj, callback){
+                $.ajax({
+                    url : "/sftp/getFileTree",
+                    dataType : "json",
+                    data: { path: '/' },
+                    type : "get",
+                    success : function(res) {
+                        console.info(res);
+                        checkErr(res)
+                        let fileTree = res.data
+                        if(fileTree) {
+                            fileTree.unshift(rootDirectory)
+                            callback.call(this, fileTree);
+                        }else{
+                            showTips("暂无数据！");
+                        }
+                    }
+                });
+            }
         },
         "checkbox" : {
             "keep_selected_style" : false

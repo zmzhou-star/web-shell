@@ -1,5 +1,7 @@
 package com.github.zmzhoustar.webshell.vo;
 
+import java.io.Serializable;
+
 import lombok.Data;
 
 /**
@@ -10,7 +12,9 @@ import lombok.Data;
  * @date 2021/2/23 20:57
  */
 @Data
-public class WebShellData {
+public class WebShellData implements Serializable {
+    /** serialVersionUID */
+    private static final long serialVersionUID = -2326528171211907216L;
     /** 操作类型 */
     private String operate;
     /** 主机IP */

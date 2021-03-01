@@ -1,9 +1,11 @@
 package com.github.zmzhoustar.webshell.utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.github.zmzhoustar.webshell.Constants;
 import com.github.zmzhoustar.webshell.vo.SftpFileTreeVo;
@@ -17,7 +19,9 @@ import com.jcraft.jsch.ChannelSftp;
  * @date 2021/2/28 21:52
  */
 public final class SftpFileUtils {
-	
+	/** 长文件名正则表达式 */
+	private static final Pattern FILE_PATTERN = Pattern.compile(
+			"^([-dlpbcsrwx]{10})\\s+([0-9]+)\\s+([0-9a-zA-Z]+)\\s+([0-9a-zA-Z]+)\\s+([0-9]+)\\s+([0-9a-zA-Z:\\s]+)\\s+");
 	/**
 	 * 获取文件列表
 	 * @param sftpUtils SftpUtils
@@ -34,7 +38,7 @@ public final class SftpFileUtils {
 		}
 		Vector<?> files = sftpUtils.listFiles(parentPath);
 		String finalParentPath = parentPath;
-		Optional.ofNullable(files).orElse(new Vector<>()).forEach(file -> {
+		files.forEach(file -> {
 			ChannelSftp.LsEntry lsEntry = (ChannelSftp.LsEntry) file;
 			// 文件夹图标
 			String icon = "jstree-folder";
@@ -48,8 +52,21 @@ public final class SftpFileUtils {
 					.text(lsEntry.getFilename())
 					.icon(icon)
 					.build();
+			// 匹配文件详情
+			Matcher m = FILE_PATTERN.matcher(lsEntry.getLongname());
+			if (m.find()) {
+				vo.setFileType(m.group(1).substring(0, 1));
+				vo.setFileAttr(m.group(1).substring(1));
+				vo.setNumberOfDir(m.group(2));
+				vo.setOwner(m.group(3));
+				vo.setGroup(m.group(4));
+				vo.setSize(WebShellUtils.convertFileSize(Long.parseLong(m.group(5))));
+				vo.setModifiedDate(m.group(6));
+			}
 			fileTree.add(vo);
 		});
+		// 排序
+		Collections.sort(fileTree);
 		return fileTree;
 	}
 	/**

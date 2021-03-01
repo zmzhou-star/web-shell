@@ -41,6 +41,10 @@ spring:
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
+  cache:
+    type: ehcache
+    ehcache:
+      config: classpath:ehcache.xml
 # 日志配置
 logging:
   config: classpath:log4j2.xml

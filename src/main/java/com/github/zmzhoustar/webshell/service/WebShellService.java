@@ -6,7 +6,6 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Service;
@@ -16,7 +15,6 @@ import org.springframework.web.socket.WebSocketSession;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.zmzhoustar.webshell.Constants;
 import com.github.zmzhoustar.webshell.utils.SecretUtils;
-import com.github.zmzhoustar.webshell.utils.SftpUtils;
 import com.github.zmzhoustar.webshell.utils.ThreadPoolUtils;
 import com.github.zmzhoustar.webshell.utils.WebShellUtils;
 import com.github.zmzhoustar.webshell.vo.ShellConnectInfo;
@@ -52,8 +50,8 @@ public class WebShellService {
 		ShellConnectInfo shellConnectInfo = new ShellConnectInfo();
 		shellConnectInfo.setJsch(jSch);
 		shellConnectInfo.setWebSocketSession(session);
-		String uuid = WebShellUtils.getUserName(session);
-		//将这个ssh连接信息放入map中
+		String uuid = WebShellUtils.getUuid(session);
+		//将这个ssh连接信息放入缓存中
 		SSH_MAP.put(uuid, shellConnectInfo);
 	}
 
@@ -71,7 +69,7 @@ public class WebShellService {
 			log.error("Json转换异常:{}", e.getMessage());
 			return;
 		}
-		String userId = WebShellUtils.getUserName(session);
+		String userId = WebShellUtils.getUuid(session);
 		//找到刚才存储的ssh连接对象
 		ShellConnectInfo shellConnectInfo = (ShellConnectInfo) SSH_MAP.get(userId);
 		if (shellConnectInfo != null) {
@@ -89,8 +87,6 @@ public class WebShellService {
 			} else if (Constants.OPERATE_COMMAND.equals(shellData.getOperate())) {
 				String command = shellData.getCommand();
 				sendToTerminal(shellConnectInfo.getChannel(), command);
-			} else if (Constants.OPERATE_SFTP.equals(shellData.getOperate())) {
-				connectToSftp(shellConnectInfo, shellData, session);
 			} else {
 				log.error("不支持的操作");
 				close(session);
@@ -105,7 +101,7 @@ public class WebShellService {
 	 * @date 2021/2/23 21:16
 	 */
 	public void close(WebSocketSession session) {
-		String userId = WebShellUtils.getUserName(session);
+		String userId = WebShellUtils.getUuid(session);
 		ShellConnectInfo shellConnectInfo = (ShellConnectInfo) SSH_MAP.get(userId);
 		if (shellConnectInfo != null) {
 			//断开连接
@@ -165,24 +161,6 @@ public class WebShellService {
 			session.disconnect();
 			channel.disconnect();
 		}
-	}
-
-	/**
-	 * 使用jsch连接SFTP终端
-	 * @param connectInfo ShellConnectInfo
-	 * @param sshData WebShellData
-	 * @param socketSession WebSocketSession
-	 * @author zmzhou
-	 * @date 2021/2/26 15:01
-	 */
-	private void connectToSftp(ShellConnectInfo connectInfo, WebShellData sshData, WebSocketSession socketSession) {
-		SftpUtils sftpUtils = new SftpUtils(sshData.getUsername(),
-				SecretUtils.decrypt(sshData.getPassword(), SecretUtils.AES_KEY),
-				sshData.getHost(), sshData.getPort());
-		sftpUtils.login();
-		Vector<?> list = sftpUtils.listFiles("/opt");
-		assert list != null;
-		sendMessage(socketSession, Arrays.toString(list.toArray()).getBytes());
 	}
 
 	/**

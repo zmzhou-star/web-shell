@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Iterator;
 import java.util.Vector;
 
 import org.apache.commons.io.IOUtils;
@@ -95,6 +96,9 @@ public final class SftpUtils {
 
 	/**
 	 * 连接SFTP服务器
+	 * @return 连接成功
+	 * @author zmzhou
+	 * @date 2021/3/1 14:01
 	 */
 	public boolean login() {
 		JSch jsch = new JSch();
@@ -133,13 +137,13 @@ public final class SftpUtils {
 		if (channelSftp != null) {
 			if (channelSftp.isConnected()) {
 				channelSftp.disconnect();
-				log.info("sftp is close already");
+				log.debug("sftp closed");
 			}
 		}
 		if (session != null) {
 			if (session.isConnected()) {
 				session.disconnect();
-				log.info("session is close already");
+				log.debug("session closed");
 			}
 		}
 	}
@@ -297,9 +301,7 @@ public final class SftpUtils {
 	 */
 	public void delete(String directory) {
 		Vector<?> vector = listFiles(directory);
-		vector.remove(0);
-		vector.remove(0);
-		for (Object v : vector) {
+		vector.forEach(v -> {
 			ChannelSftp.LsEntry lsEntry = (ChannelSftp.LsEntry) v;
 			try {
 				channelSftp.cd(directory);
@@ -307,28 +309,36 @@ public final class SftpUtils {
 			} catch (SftpException e) {
 				log.error("文件删除异常！", e);
 			}
-		}
+		});
 	}
 
 	/**
-	 * 获取文件夹下的文件
+	 * 获取文件夹下的文件列表
 	 *
 	 * @param directory 路径
-	 * @return
+	 * @return 文件列表
+	 * @author zmzhou
+	 * @date 2021/3/1 9:56
 	 */
 	public Vector<?> listFiles(String directory) {
 		try {
 			if (isDirExist(directory)) {
 				Vector<?> vector = channelSftp.ls(directory);
 				//移除上级目录和根目录："." ".."
-				vector.remove(0);
-				vector.remove(0);
+				Iterator<?> it = vector.iterator();
+				while (it.hasNext()) {
+					ChannelSftp.LsEntry lsEntry = (ChannelSftp.LsEntry) it.next();
+					if (Constants.DOT.equals(lsEntry.getFilename())
+							|| Constants.PARENT_DIRECTORY.equals(lsEntry.getFilename())) {
+						it.remove();
+					}
+				}
 				return vector;
 			}
 		} catch (SftpException e) {
 			log.error("获取文件夹信息异常！", e);
 		}
-		return null;
+		return new Vector<>();
 	}
 
 	/**
@@ -394,7 +404,7 @@ public final class SftpUtils {
 			SftpATTRS attrs = this.channelSftp.lstat(directory);
 			return attrs.isDir();
 		} catch (Exception e) {
-			log.error("判断目录是否存在:", e);
+			log.error("判断目录是否存在异常：{}", directory, e);
 		}
 		return false;
 	}
