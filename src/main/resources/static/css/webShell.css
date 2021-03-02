@@ -85,12 +85,15 @@ h1{
     width: calc(30% - 8px);
     height: 80%;
 }
-.sftp-file-tree-div input{
+.sftp-file-tree-div > input{
     padding: 0 15px;
     height: 30px;
-    width: calc(100% - 38px);
+    width: calc(100% - 180px);
     background-color: slategray;
     color: #fff;
+    border: 1px solid #99D3F5;
+    outline: none;
+    border-radius: 5px;
 }
 .sftp-file-tree-div .sftp-file-tree{
     width: 100%;
@@ -133,27 +136,53 @@ table.file-detail-table {
     border-collapse: collapse;
 }
 table.file-detail-table th {
-    border-width: 1px;
-    padding: 8px;
-    border-style: solid;
-    border-color: #a9c6c9;
+    background-color: #3F3F3F;
     color: white;
 }
-table.file-detail-table td {
-    border-width: 1px;
-    padding: 8px;
-    border-style: solid;
-    border-color: #a9c6c9;
+table.file-detail-table th:first-child, table.file-detail-table td:first-child {
+    padding-left: 10px;
 }
-.odd-row{
-    background-color:#d4e3e5;
+table.file-detail-table th, table.file-detail-table td {
+    border-bottom: 1px solid #a9c6c9;
+    padding: 6px 0;
+    text-align: left;
 }
-.even-row{
-    background-color:#c3dde0;
-}
-.file-detail-table tr:hover{
+table.file-detail-table tr:nth-child(even) { background-color:#c3dde0; }
+table.file-detail-table tr:nth-child(odd) { background-color:#d4e3e5; }
+table.file-detail-table tr:hover{
     background-color: #dcddc0;
 }
 .data-cell .file-name {
     cursor: pointer;
+}
+.sftp-file-tree-div form {
+    padding-left: 10px;
+    width: 130px;
+    display: inline-block;
+}
+.select-file {
+    position: relative;
+    display: inline-block;
+    background: #D0EEFF;
+    border: 1px solid #99D3F5;
+    border-radius: 5px;
+    padding: 5px 15px;
+    color: #1E88C7;
+    text-decoration: none;
+    line-height: 20px;
+}
+.select-file input {
+    position: absolute;
+    width: 120px;
+    height: 30px;
+    font-size: 100px;
+    right: 0;
+    top: 0;
+    opacity: 0;
+}
+.select-file:hover {
+    background: #AADFFD;
+    border-color: #78C3F3;
+    color: #004974;
+    text-decoration: none;
 }

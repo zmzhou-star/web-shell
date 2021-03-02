@@ -16,10 +16,16 @@
     <div class="sftp-container">
         <div class="sftp-file-tree-div">
             <input id="current_path" placeholder="当前目录" value="/">
+            <form action="#" enctype="multipart/form-data" id="upload_form">
+                <a href="javascript:" class="select-file">选择文件上传
+                    <input type="text" name="path" id="path">
+                    <input type="file" name="file" id="file" multiple>
+                </a>
+            </form>
             <div id="file_tree" class="sftp-file-tree"></div>
         </div>
         <div id="file_detail" class="sftp-file-detail">
-            <table border="0" class="file-detail-table">
+            <table class="file-detail-table">
                 <tr>
                     <th>文件名</th>
                     <th>文件类型</th>
@@ -44,16 +50,11 @@ $(function () {
     if (!login) {
         alert("登录失败，请重新连接SFTP服务！")
     }
-    function showTips(msg) {
-        $("#message_console").html(new Date().toLocaleTimeString() + "：" + msg);
-    }
-    function checkErr(data) {
-        if (data.code === 200) {
-            showTips("查询成功！");
-        } else {
-            showTips("查询失败！");
+    $("#file").change(function () {
+        if($(this).val() !== ""){
+            uploadFile();
         }
-    }
+    })
     function getFileTree(instance, selectedNode) {
         $.ajax({
             url : "/sftp/getFileTree",
@@ -114,7 +115,14 @@ $(function () {
             $currentPathInput.focus()
         }).bind('dblclick', function() {
             let tree = $fileTree.jstree(true);
-            tree.select_node($(this).attr('id'));
+            let val = $(this).attr('id');
+            tree.select_node(val);
+            let file = tree.get_node(val)
+            console.log(file)
+            // 双击 除文件夹外都下载
+            if ("jstree-folder" !== file.icon) {
+                window.open(window.location.origin + "/sftp/download?path=" + val, '_blank')
+            }
         });
     }
     // 根目录
@@ -159,7 +167,7 @@ $(function () {
         "checkbox" : {
             "keep_selected_style" : false
         },
-        "plugins" : [ "wholerow", "checkbox" ]
+        "plugins" : [ "checkbox" ]
     });
 
     /**
@@ -177,6 +185,9 @@ $(function () {
             if (nodeId !== pNodeId) {
                 $currentPathInput.val(nodeId)
                 $currentPathInput.focus()
+                setTimeout(function () {
+                    selectNode(nodeId);
+                }, 1000)
             }
             return true;
         } else {

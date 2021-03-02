@@ -45,6 +45,10 @@ spring:
     type: ehcache
     ehcache:
       config: classpath:ehcache.xml
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 500MB
 # 日志配置
 logging:
   config: classpath:log4j2.xml

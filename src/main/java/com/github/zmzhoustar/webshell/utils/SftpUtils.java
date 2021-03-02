@@ -1,17 +1,10 @@
 package com.github.zmzhoustar.webshell.utils;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 import java.util.Vector;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.github.zmzhoustar.webshell.Constants;
@@ -96,6 +89,7 @@ public final class SftpUtils {
 
 	/**
 	 * 连接SFTP服务器
+	 *
 	 * @return 连接成功
 	 * @author zmzhou
 	 * @date 2021/3/1 14:01
@@ -155,6 +149,8 @@ public final class SftpUtils {
 	 * @param sftpFileName 上传到SFTP服务器后的文件名
 	 * @param input        输入流
 	 * @throws SftpException SftpException
+	 * @author zmzhou
+	 * @date 2021/3/2 23:36
 	 */
 	public void upload(String directory, String sftpFileName, InputStream input) throws SftpException {
 		long start = System.currentTimeMillis();
@@ -170,111 +166,45 @@ public final class SftpUtils {
 			channelSftp.mkdir(directory);
 			channelSftp.cd(directory);
 		}
+		// 上传文件
 		channelSftp.put(input, sftpFileName);
 		log.info("文件上传成功！！ 耗时：{}ms", (System.currentTimeMillis() - start));
 	}
 
 	/**
-	 * 上传单个文件
-	 *
-	 * @param directory     上传到SFTP服务器的路径
-	 * @param uploadFileUrl 文件路径
-	 */
-	public void upload(String directory, String uploadFileUrl) {
-		File file = new File(uploadFileUrl);
-		try {
-			upload(directory, file.getName(), new FileInputStream(file));
-		} catch (FileNotFoundException | SftpException e) {
-			log.error("上传文件异常！", e);
-		}
-	}
-
-	/**
-	 * 将byte[] 上传到SFTP服务器，作为文件
-	 * 注： 从String转换成byte[] 需要指定字符集
-	 *
-	 * @param directory    上传到SFTP服务器的路径
-	 * @param sftpFileName 上传SFTP服务器后的文件名
-	 * @param bytes        字节数组
-	 */
-	public void upload(String directory, String sftpFileName, byte[] bytes) {
-		try {
-			upload(directory, sftpFileName, new ByteArrayInputStream(bytes));
-		} catch (SftpException e) {
-			log.error("上传文件异常！", e);
-		}
-	}
-
-	/**
-	 * 将字符串按照指定编码格式上传到SFTP服务器
-	 *
-	 * @param directory    上传到SFTP服务器的路径
-	 * @param sftpFileName 上传SFTP服务器后的文件名
-	 * @param dataStr      字符串
-	 * @param charsetName  字符串的编码格式
-	 */
-	public void upload(String directory, String sftpFileName, String dataStr, String charsetName) {
-		try {
-			upload(directory, sftpFileName, new ByteArrayInputStream(dataStr.getBytes(charsetName)));
-		} catch (UnsupportedEncodingException | SftpException e) {
-			log.error("上传文件异常！", e);
-		}
-	}
-
-	/**
 	 * 下载文件
 	 *
-	 * @param directory    SFTP服务器的文件路径
-	 * @param downloadFile SFTP服务器上的文件名
-	 * @param saveFile     保存到本地路径
-	 */
-	public void download(String directory, String downloadFile, String saveFile) {
-		try {
-			if (directory != null && !"".equals(directory)) {
-				channelSftp.cd(directory);
-			}
-			File file = new File(saveFile);
-			channelSftp.get(downloadFile, new FileOutputStream(file));
-		} catch (SftpException | FileNotFoundException e) {
-			log.error("文件下载异常！", e);
-		}
-	}
-
-	/**
-	 * 下载文件
-	 *
-	 * @param directory    SFTP服务器的文件路径
-	 * @param downloadFile SFTP服务器上的文件名
-	 * @return 字节数组
-	 */
-	public byte[] download(String directory, String downloadFile) {
-		try {
-			if (directory != null && !"".equals(directory)) {
-				channelSftp.cd(directory);
-			}
-			InputStream inputStream = channelSftp.get(downloadFile);
-			return IOUtils.toByteArray(inputStream);
-		} catch (SftpException | IOException e) {
-			log.error("文件下载异常！", e);
-		}
-		return null;
-	}
-
-	/**
-	 * 下载文件
-	 *
-	 * @param directory    SFTP服务器的文件路径
-	 * @param downloadFile SFTP服务器上的文件名
+	 * @param path SFTP服务器的文件路径
 	 * @return 输入流
+	 * @author zmzhou
+	 * @date 2021/3/2 21:20
 	 */
-	public InputStream downloadStream(String directory, String downloadFile) {
+	public InputStream download(String path) {
+		// 文件所在目录
+		String directory = path.substring(0, path.lastIndexOf(Constants.SEPARATOR));
+		// 文件名
+		String fileName = path.substring(path.lastIndexOf(Constants.SEPARATOR) + 1);
+		return download(directory, fileName);
+	}
+
+	/**
+	 * 下载文件
+	 *
+	 * @param directory SFTP服务器的文件路径
+	 * @param fileName  SFTP服务器上的文件名
+	 * @return 输入流
+	 * @author zmzhou
+	 * @date 2021/3/2 21:20
+	 */
+	public InputStream download(String directory, String fileName) {
 		try {
-			if (directory != null && !"".equals(directory)) {
+			if (StringUtils.isNotBlank(directory)) {
 				channelSftp.cd(directory);
 			}
-			return channelSftp.get(downloadFile);
+			log.info("下载文件:{}/{}", directory, fileName);
+			return channelSftp.get(fileName);
 		} catch (SftpException e) {
-			log.error("文件下载异常！", e);
+			log.error("下载文件:{}/{}异常！", directory, fileName, e);
 		}
 		return null;
 	}
@@ -431,10 +361,10 @@ public final class SftpUtils {
 	 * @param path 路径
 	 * @return 文件或目录是否存在
 	 */
-	public boolean isExist(String path, ChannelSftp sftp) {
+	public boolean isExist(String path) {
 		boolean isExist = false;
 		try {
-			sftp.lstat(path);
+			this.channelSftp.lstat(path);
 			isExist = true;
 		} catch (Exception e) {
 			log.error("判断文件或目录是否存在:", e);
