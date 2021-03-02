@@ -22,6 +22,7 @@
             <table border="0" class="file-detail-table">
                 <tr>
                     <th>文件名</th>
+                    <th>文件类型</th>
                     <th>文件属性</th>
                     <th>目录/链接个数</th>
                     <th>所有者</th>
@@ -65,42 +66,65 @@ $(function () {
                 let fileTree = res.data
                 if(fileTree && fileTree.length > 0) {
                     selectedNode.children = [];
-                    let fileDetail = "";
-                    $(".file-detail-table .data-cell").remove();
                     for (const i in fileTree) {
                         let item = fileTree[i];
                         instance.create_node(selectedNode, item, "last");
-
-                        let className = "odd-row";
-                        if(i % 2 === 0){
-                            className = "even-row";
-                        }
-                        fileDetail += "<tr class='data-cell " + className + "'><td class='file-name'>"+ item.text +"</td>";
-                        fileDetail += "<td>"+ item.fileAttr +"</td>";
-                        fileDetail += "<td>"+ item.numberOfDir +"</td>";
-                        fileDetail += "<td>"+ item.owner +"</td>";
-                        fileDetail += "<td>"+ item.group +"</td>";
-                        fileDetail += "<td>"+ item.size +"</td>";
-                        fileDetail += "<td>"+ item.modifiedDate +"</td></tr>";
                     }
-                    $(".file-detail-table").append(fileDetail);
                     instance.open_node(selectedNode);
                     //全不选择
-                    instance.deselect_all()
+                    instance.deselect_all();
+                    loadTableData(fileTree);
                 }else{
                     showTips("暂无数据！");
+                    $(".file-detail-table .data-cell").remove();
                 }
             }
         });
     }
+    let $fileTree = $('#file_tree');
+    let $currentPathInput = $("#current_path");
+    function loadTableData(data) {
+        let fileDetail = "";
+        $(".file-detail-table .data-cell").remove();
+        for (const i in data) {
+            let item = data[i];
+            let className = "odd-row";
+            if(i % 2 === 0){
+                className = "even-row";
+            }
+            let icon = item.icon;
+            if(icon && !icon.startsWith('jstree')){
+                icon = "' style='background-image: url(" + icon
+                    + ");background-position: center center;background-size: auto;'";
+            }
+            fileDetail += "<tr class='data-cell " + className + "'>";
+            fileDetail += "<td class='file-name jstree-default' id='" + item.id + "'>" +
+                "<i class='jstree-icon " + icon + "'></i>"+ item.text +"</td>";
+            fileDetail += "<td>"+ item.fileType +"</td>";
+            fileDetail += "<td>"+ item.fileAttr +"</td>";
+            fileDetail += "<td>"+ item.numberOfDir +"</td>";
+            fileDetail += "<td>"+ item.owner +"</td>";
+            fileDetail += "<td>"+ item.group +"</td>";
+            fileDetail += "<td>"+ item.size +"</td>";
+            fileDetail += "<td>"+ item.modifiedDate +"</td></tr>";
+        }
+        $(".file-detail-table").append(fileDetail);
+        $('.data-cell .file-name').bind('click', function() {
+            $currentPathInput.val($(this).attr('id'))
+            $currentPathInput.focus()
+        }).bind('dblclick', function() {
+            let tree = $fileTree.jstree(true);
+            tree.select_node($(this).attr('id'));
+        });
+    }
     // 根目录
     let rootDirectory = { "id": "/", "parent": "#", "text": "/", 'state': { 'opened': true }}
-    $('#file_tree').on("changed.jstree", function (e, data) {
-        console.info(data);
+
+    $fileTree.on("changed.jstree", function (e, data) {
         if(data.selected.length) {
             let selected = data.instance.get_node(data.selected[0])
             console.log('The selected node is: ' + selected.id);
-            $("#current_path").val(selected.id)
+            $currentPathInput.val(selected.id)
             // 只查询文件夹的下一级文件
             if ("jstree-folder" === selected.icon) {
                 getFileTree(data.instance, selected)
@@ -121,10 +145,12 @@ $(function () {
                         checkErr(res)
                         let fileTree = res.data
                         if(fileTree) {
+                            loadTableData(fileTree);
                             fileTree.unshift(rootDirectory)
                             callback.call(this, fileTree);
                         }else{
                             showTips("暂无数据！");
+                            $(".file-detail-table .data-cell").remove();
                         }
                     }
                 });
@@ -135,6 +161,38 @@ $(function () {
         },
         "plugins" : [ "wholerow", "checkbox" ]
     });
+
+    /**
+     * 选中node
+     * @param {String} nodeId 节点id
+     * @param {String} pNodeId 父节点id（可选）
+     */
+    function selectNode(nodeId, pNodeId) {
+        let tree = $fileTree.jstree(true);
+        if (tree.get_node(nodeId)){
+            tree.select_node(nodeId);
+            return true;
+        } else if (pNodeId && tree.get_node(pNodeId)){
+            tree.select_node(pNodeId);
+            if (nodeId !== pNodeId) {
+                $currentPathInput.val(nodeId)
+                $currentPathInput.focus()
+            }
+            return true;
+        } else {
+            return selectNode(nodeId, nodeId.substring(0, nodeId.lastIndexOf('/')))
+        }
+    }
+    $currentPathInput.bind("keypress", function(event){
+        if(event.keyCode === 13){
+            // 删除最后一个/
+            let val = $(this).val().replace(/(\/*$)/g,"");
+            console.log(val)
+            if (val) {
+                selectNode(val);
+            }
+        }
+    })
 });
 </script>
 </html>

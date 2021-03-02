@@ -40,12 +40,9 @@ public final class SftpFileUtils {
 		String finalParentPath = parentPath;
 		files.forEach(file -> {
 			ChannelSftp.LsEntry lsEntry = (ChannelSftp.LsEntry) file;
-			// 文件夹图标
-			String icon = "jstree-folder";
-			if (lsEntry.getLongname().startsWith(Constants.MINUS)) {
-				// 文件图标
-				icon = "jstree-file";
-			}
+			String fileType = lsEntry.getLongname().substring(0, 1);
+			// 文件类型图标
+			String icon = FileType.getFileTypeIcon(fileType);
 			SftpFileTreeVo vo = SftpFileTreeVo.builder()
 					.id(finalParentPath + lsEntry.getFilename())
 					.parent(finalParentPath)
@@ -55,7 +52,7 @@ public final class SftpFileUtils {
 			// 匹配文件详情
 			Matcher m = FILE_PATTERN.matcher(lsEntry.getLongname());
 			if (m.find()) {
-				vo.setFileType(m.group(1).substring(0, 1));
+				vo.setFileType(FileType.getZhName(m.group(1).substring(0, 1)));
 				vo.setFileAttr(m.group(1).substring(1));
 				vo.setNumberOfDir(m.group(2));
 				vo.setOwner(m.group(3));
