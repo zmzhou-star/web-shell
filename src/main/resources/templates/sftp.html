@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>web sftp</title>
+    <title th:text="'web sftp ' + ${host}">web sftp</title>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
     <link rel="shortcut icon" th:href="@{/static/img/favicon.ico}"/>
     <link rel="stylesheet" th:href="@{/static/css/webShell.css}"/>
@@ -87,18 +87,22 @@ $(function () {
     function loadTableData(data) {
         let fileDetail = "";
         $(".file-detail-table .data-cell").remove();
-        for (const i in data) {
-            let item = data[i];
-            let className = "odd-row";
-            if(i % 2 === 0){
-                className = "even-row";
-            }
+        // 根目录以外的目录下新增上级目录项
+        if (data[0].id.substring(1).indexOf('/') > 0) {
+            let id = data[0].id;
+            let pid = id.substring(0, id.lastIndexOf('/', id.lastIndexOf('/') - 1) + 1).replace(/(\/*$)/g,"") || '/';
+            fileDetail = "<tr class='data-cell'><td class='file-name jstree-default' id='" + pid + "'>" +
+                "<i class='jstree-icon jstree-folder'></i>..</td><td>上级目录</td>" +
+                "<td></td><td></td><td></td><td></td><td></td><td></td></tr>";
+        }
+        for (const d in data) {
+            let item = data[d];
             let icon = item.icon;
             if(icon && !icon.startsWith('jstree')){
                 icon = "' style='background-image: url(" + icon
                     + ");background-position: center center;background-size: auto;'";
             }
-            fileDetail += "<tr class='data-cell " + className + "'>";
+            fileDetail += "<tr class='data-cell'>";
             fileDetail += "<td class='file-name jstree-default' id='" + item.id + "'>" +
                 "<i class='jstree-icon " + icon + "'></i>"+ item.text +"</td>";
             fileDetail += "<td>"+ item.fileType +"</td>";
@@ -111,22 +115,28 @@ $(function () {
         }
         $(".file-detail-table").append(fileDetail);
         $('.data-cell .file-name').bind('click', function() {
-            $currentPathInput.val($(this).attr('id'))
+            let tree = $fileTree.jstree(true);
+            let val = $(this).attr('id');
+            let file = tree.get_node(val)
+            // 单击文件夹设置输入框数据
+            if (file && "jstree-folder" === file.icon) {
+                $currentPathInput.val(val)
+                tree.select_node(val);
+            }
             $currentPathInput.focus()
         }).bind('dblclick', function() {
             let tree = $fileTree.jstree(true);
             let val = $(this).attr('id');
             tree.select_node(val);
             let file = tree.get_node(val)
-            console.log(file)
             // 双击 除文件夹外都下载
-            if ("jstree-folder" !== file.icon) {
+            if (file && "jstree-folder" !== file.icon) {
                 window.open(window.location.origin + "/sftp/download?path=" + val, '_blank')
             }
         });
     }
     // 根目录
-    let rootDirectory = { "id": "/", "parent": "#", "text": "/", 'state': { 'opened': true }}
+    let rootDirectory = { "id": "/", "parent": "#", "text": "/", "icon": "jstree-folder", 'state': { 'opened': true }}
 
     $fileTree.on("changed.jstree", function (e, data) {
         if(data.selected.length) {
@@ -149,7 +159,6 @@ $(function () {
                     data: { path: '/' },
                     type : "get",
                     success : function(res) {
-                        console.info(res);
                         checkErr(res)
                         let fileTree = res.data
                         if(fileTree) {

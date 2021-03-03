@@ -129,13 +129,15 @@
             password: encrypt($("#password").val())//密码
         }
         loginParams = params;
+        // 修改页面标签
+        document.title += " " + params.host;
         connect(params, 'terminal')
     }
     // login()
     /** 连接SFTP服务 */
     function loginSftp() {
         loginParams.operate = 'sftp'
-        window.open(window.location.href.replace('?#', 'sftp?params=' + encodeURI(JSON.stringify(loginParams))))
+        window.open(window.location.href.replace('?#', 'sftp?params=' + encodeURIComponent(JSON.stringify(loginParams))))
     }
     let selection;
     //选中复制

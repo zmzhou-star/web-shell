@@ -58,6 +58,7 @@ public class RouterController {
 			boolean login = sftpUtils.login();
 			// 登录成功状态
 			model.addAttribute("login", login);
+			model.addAttribute("host", sshData.getHost());
 			sftpUtils.logout();
 		}
 		return "sftp";

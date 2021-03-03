@@ -1,6 +1,5 @@
 package com.github.zmzhoustar.webshell.utils;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Vector;
@@ -55,7 +54,7 @@ public final class SftpUtils {
 	/**
 	 * FTP服务器端口号
 	 */
-	private int port = 22;
+	private final int port;
 
 	/**
 	 * 构造器：基于密码认证sftp对象
@@ -154,18 +153,8 @@ public final class SftpUtils {
 	 */
 	public void upload(String directory, String sftpFileName, InputStream input) throws SftpException {
 		long start = System.currentTimeMillis();
-		try {
-			//如果文件夹不存在，则创建文件夹
-			if (channelSftp.ls(directory) == null) {
-				channelSftp.mkdir(directory);
-			}
-			//切换到指定文件夹
-			channelSftp.cd(directory);
-		} catch (SftpException e) {
-			//创建不存在的文件夹，并切换到文件夹
-			channelSftp.mkdir(directory);
-			channelSftp.cd(directory);
-		}
+		// 创建不存在的文件夹，并切换到文件夹
+		createDir(directory);
 		// 上传文件
 		channelSftp.put(input, sftpFileName);
 		log.info("文件上传成功！！ 耗时：{}ms", (System.currentTimeMillis() - start));
@@ -252,7 +241,7 @@ public final class SftpUtils {
 	 */
 	public Vector<?> listFiles(String directory) {
 		try {
-			if (isDirExist(directory)) {
+			if (isDirExists(directory)) {
 				Vector<?> vector = channelSftp.ls(directory);
 				//移除上级目录和根目录："." ".."
 				Iterator<?> it = vector.iterator();
@@ -272,32 +261,16 @@ public final class SftpUtils {
 	}
 
 	/**
-	 * 检测文件夹是否存在
-	 *
-	 * @param directory 路径
-	 * @author zmzhou
-	 * @date 2021/2/26 15:31
-	 */
-	public boolean exists(String directory) {
-		try {
-			if (channelSftp.ls(directory) != null) {
-				return true;
-			}
-		} catch (Exception e) {
-			log.error("检测文件夹异常！", e);
-		}
-		return false;
-	}
-
-	/**
-	 * 创建一个文件目录
+	 * 判断目录是否存在，不存在则创建，并进入目录
 	 *
 	 * @param createPath 路径
-	 * @return
+	 * @return 创建成功并进入目录
+	 * @author zmzhou
+	 * @date 2021/3/3 10:53
 	 */
 	public boolean createDir(String createPath) {
 		try {
-			if (isDirExist(createPath)) {
+			if (isDirExists(createPath)) {
 				this.channelSftp.cd(createPath);
 				return true;
 			}
@@ -307,15 +280,19 @@ public final class SftpUtils {
 				if ("".equals(path)) {
 					continue;
 				}
-				filePath.append(path).append(Constants.SEPARATOR);
-				if (!isDirExist(filePath.toString())) {
+				filePath.append(path);
+				// 路径如果是文件，跳过，保存到同级目录
+				if (isFileExists(filePath.toString())) {
+					continue;
+				}
+				filePath.append(Constants.SEPARATOR);
+				if (!isDirExists(filePath.toString())) {
 					// 建立目录
 					channelSftp.mkdir(filePath.toString());
-					// 进入并设置为当前目录
 				}
+				// 并进入目录
 				channelSftp.cd(filePath.toString());
 			}
-			this.channelSftp.cd(createPath);
 		} catch (SftpException e) {
 			log.error("目录创建异常！", e);
 			return false;
@@ -328,11 +305,13 @@ public final class SftpUtils {
 	 *
 	 * @param directory 路径
 	 * @return 目录是否存在
+	 * @author zmzhou
+	 * @date 2021/3/3 11:04
 	 */
-	public boolean isDirExist(String directory) {
+	public boolean isDirExists(String directory) {
 		try {
 			SftpATTRS attrs = this.channelSftp.lstat(directory);
-			return attrs.isDir();
+			return null != attrs && attrs.isDir();
 		} catch (Exception e) {
 			log.error("判断目录是否存在异常：{}", directory, e);
 		}
@@ -340,53 +319,20 @@ public final class SftpUtils {
 	}
 
 	/**
-	 * 方法功能说明：目录不存在时创建目录
-	 *
-	 * @return void
-	 * @throws
-	 * @参数： @param path
+	 * 判断文件是否存在
+	 * @param filePath 文件路径
+	 * @return 文件是否存在
+	 * @author zmzhou
+	 * @date 2021/3/3 11:04
 	 */
-	public void mkdirs(String path) {
-		File file = new File(path);
-		String fs = file.getParent();
-		file = new File(fs);
-		if (!file.exists()) {
-			file.mkdirs();
-		}
-	}
-
-	/**
-	 * 判断文件或目录是否存在
-	 *
-	 * @param path 路径
-	 * @return 文件或目录是否存在
-	 */
-	public boolean isExist(String path) {
-		boolean isExist = false;
+	public boolean isFileExists(String filePath) {
 		try {
-			this.channelSftp.lstat(path);
-			isExist = true;
+			SftpATTRS attrs = this.channelSftp.lstat(filePath);
+			// 存在并且不是文件夹
+			return null != attrs && !attrs.isDir();
 		} catch (Exception e) {
-			log.error("判断文件或目录是否存在:", e);
+			log.error("判断文件是否存在异常：{}", filePath, e);
 		}
-		return isExist;
-	}
-
-	/**
-	 * Gets channel sftp.
-	 *
-	 * @return the channel sftp
-	 */
-	public ChannelSftp getChannelSftp() {
-		return channelSftp;
-	}
-
-	/**
-	 * Gets session.
-	 *
-	 * @return the session
-	 */
-	public Session getSession() {
-		return session;
+		return false;
 	}
 }
