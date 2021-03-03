@@ -10,6 +10,7 @@ Pure Java implements a web shell login Linux remote host, technology selection S
 * [WebSocket](https://docs.spring.io/spring-boot/docs/2.4.1/reference/htmlsingle/#boot-features-websockets)
 * [jsch](https://github.com/is/jsch)
 * [xterm.js](https://github.com/xtermjs/xterm.js/)
+* Cache usage [spring cache](https://docs.spring.io/spring-boot/docs/2.4.1/reference/htmlsingle/#boot-features-caching-provider-ehcache2) + [ehcache](https://www.ehcache.org/)
 
 #### Installation tutorial
 1. `package`
