@@ -21,7 +21,6 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.github.zmzhoustar.webshell.Constants;
 import com.github.zmzhoustar.webshell.utils.EhCacheUtils;
-import com.github.zmzhoustar.webshell.utils.SecretUtils;
 import com.github.zmzhoustar.webshell.utils.SftpFileUtils;
 import com.github.zmzhoustar.webshell.utils.SftpUtils;
 import com.github.zmzhoustar.webshell.utils.WebShellUtils;
@@ -60,9 +59,7 @@ public class SftpController {
 		WebShellData sshData = EhCacheUtils.get(sessionId);
 		ApiResult<List<SftpFileTreeVo>> result = new ApiResult<>();
 		if (sshData != null) {
-			SftpUtils sftpUtils = new SftpUtils(sshData.getUsername(),
-					SecretUtils.decrypt(sshData.getPassword(), SecretUtils.AES_KEY),
-					sshData.getHost(), sshData.getPort());
+			SftpUtils sftpUtils = new SftpUtils(sshData);
 			if (sftpUtils.login()) {
 				List<SftpFileTreeVo> fileTree = SftpFileUtils.getFileTree(sftpUtils, path);
 				result.setData(fileTree);
@@ -71,11 +68,11 @@ public class SftpController {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * 上传文件到服务器
 	 * @param request HttpServletRequest
-	 * @return 
+	 * @return
 	 * @author zmzhou
 	 * @date 2021/3/2 23:07
 	 */
@@ -91,9 +88,7 @@ public class SftpController {
 		// 返回值
 		AtomicReference<String> res = new AtomicReference<>("上传成功！");
 		if (sshData != null) {
-			SftpUtils sftpUtils = new SftpUtils(sshData.getUsername(),
-					SecretUtils.decrypt(sshData.getPassword(), SecretUtils.AES_KEY),
-					sshData.getHost(), sshData.getPort());
+			SftpUtils sftpUtils = new SftpUtils(sshData);
 			if (sftpUtils.login()) {
 				files.forEach(file -> {
 					String fileName = file.getOriginalFilename();
@@ -109,9 +104,9 @@ public class SftpController {
 		}
 		return res.get();
 	}
-	
+
 	/**
-	 * 从服务器下载文件 
+	 * 从服务器下载文件
 	 * @param path 服务器文件路径
 	 * @author zmzhou
 	 * @date 2021/3/2 20:46
@@ -128,9 +123,7 @@ public class SftpController {
 		// 存放ssh连接信息
 		WebShellData sshData = EhCacheUtils.get(sessionId);
 		if (sshData != null) {
-			SftpUtils sftpUtils = new SftpUtils(sshData.getUsername(),
-					SecretUtils.decrypt(sshData.getPassword(), SecretUtils.AES_KEY),
-					sshData.getHost(), sshData.getPort());
+			SftpUtils sftpUtils = new SftpUtils(sshData);
 			if (sftpUtils.login()) {
 				// 设置信息给客户端不解析
 				String type = new MimetypesFileTypeMap().getContentType(path);

@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import com.alibaba.fastjson.JSON;
 import com.github.zmzhoustar.webshell.utils.EhCacheUtils;
-import com.github.zmzhoustar.webshell.utils.SecretUtils;
 import com.github.zmzhoustar.webshell.utils.SftpUtils;
 import com.github.zmzhoustar.webshell.utils.WebShellUtils;
 import com.github.zmzhoustar.webshell.vo.WebShellData;
@@ -52,9 +51,7 @@ public class RouterController {
 			sshData = EhCacheUtils.get(sessionId);
 		}
 		if (sshData != null) {
-			SftpUtils sftpUtils = new SftpUtils(sshData.getUsername(),
-					SecretUtils.decrypt(sshData.getPassword(), SecretUtils.AES_KEY),
-					sshData.getHost(), sshData.getPort());
+			SftpUtils sftpUtils = new SftpUtils(sshData);
 			boolean login = sftpUtils.login();
 			// 登录成功状态
 			model.addAttribute("login", login);

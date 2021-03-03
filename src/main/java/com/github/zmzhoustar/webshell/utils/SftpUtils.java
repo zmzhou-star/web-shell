@@ -7,6 +7,7 @@ import java.util.Vector;
 import org.apache.commons.lang3.StringUtils;
 
 import com.github.zmzhoustar.webshell.Constants;
+import com.github.zmzhoustar.webshell.vo.WebShellData;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
@@ -57,18 +58,16 @@ public final class SftpUtils {
 	private final int port;
 
 	/**
-	 * 构造器：基于密码认证sftp对象
-	 *
-	 * @param username 用户名
-	 * @param password 密码
-	 * @param host     服务器ip
-	 * @param port     服务器端口号
+	 * 构造器 基于密码认证
+	 * @param sshData 用户名，密码，主机，端口
+	 * @author zmzhou
+	 * @date 2021/3/3 15:16
 	 */
-	public SftpUtils(String username, String password, String host, int port) {
-		this.username = username;
-		this.password = password;
-		this.host = host;
-		this.port = port;
+	public SftpUtils(WebShellData sshData) {
+		this.username = sshData.getUsername();
+		this.password = SecretUtils.decrypt(sshData.getPassword(), SecretUtils.AES_KEY);
+		this.host = sshData.getHost();
+		this.port = sshData.getPort();
 	}
 
 	/**

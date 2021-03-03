@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.github.zmzhou-star</groupId>
 	<artifactId>web-shell</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0</version>
 	<name>web-shell</name>
 	<description>web-shell project for Spring Boot</description>
 	<properties>
@@ -59,7 +59,6 @@
 			<artifactId>jsch</artifactId>
 			<version>0.1.55</version>
 		</dependency>
-		<!-- 文件上传解析器 -->
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
@@ -116,6 +115,13 @@
 		</plugins>
 	</build>
 
+	<pluginRepositories>
+		<pluginRepository>
+			<id>aliyun spring plugins</id>
+			<name>aliyun Spring plugins</name>
+			<url>https://maven.aliyun.com/repository/spring-plugin</url>
+		</pluginRepository>
+	</pluginRepositories>
 	<repositories>
 		<repository>
 			<id>aliyunmaven</id>
