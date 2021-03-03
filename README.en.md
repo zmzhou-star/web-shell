@@ -1,17 +1,17 @@
 # web-shell
 [中文版](README.md)
 
-#### introduce
+#### Introduce
 Pure Java implements a web shell login Linux remote host, technology selection SpringBoot + WebSocket + jsch + xterm.js
 
-#### software architecture description
+#### Software architecture description
 * [Spring Boot](https://start.spring.io/)
 * [Thymeleaf](https://docs.spring.io/spring-boot/docs/2.4.1/reference/htmlsingle/#boot-features-spring-mvc-template-engines)
 * [WebSocket](https://docs.spring.io/spring-boot/docs/2.4.1/reference/htmlsingle/#boot-features-websockets)
 * [jsch](https://github.com/is/jsch)
 * [xterm.js](https://github.com/xtermjs/xterm.js/)
 
-#### installation tutorial
+#### Installation tutorial
 1. `unpack`
 ```
 mvn clean install -X -DskipTests
@@ -33,7 +33,7 @@ nohup It means to run the command without hanging up, and the program will still
 * sftp page file details list window double click the file to download
 * On the sftp page, click the `Select File Upload` button to select file upload (multiple selections are possible)
    
-#### 运行效果图
+#### Running effect chart
 ![login](docs/login.png)
 ![shell](docs/shell.png)
 ![sftp](docs/sftp.png)
@@ -43,7 +43,7 @@ nohup It means to run the command without hanging up, and the program will still
 
 Please feel free to enjoy and participate in open source
 
-#### donate
+#### Donate
 Open source is not easy, please encourage it! (Note: Please note web-shell donation and title for donations)
 
 | Alipay  | Wechat  |
