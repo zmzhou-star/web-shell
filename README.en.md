@@ -12,7 +12,7 @@ Pure Java implements a web shell login Linux remote host, technology selection S
 * [xterm.js](https://github.com/xtermjs/xterm.js/)
 
 #### Installation tutorial
-1. `unpack`
+1. `package`
 ```
 mvn clean install -X -DskipTests
 ```
@@ -29,7 +29,7 @@ nohup java -jar -server web-shell-1.0.jar > logs/web-shell.out 2>&1 &
 nohup It means to run the command without hanging up, and the program will still run when the account is exited or the terminal is closed
 &represents running in the background
 
-4. Address：http://127.0.0.1:9598/
+4. `Address：`http://127.0.0.1:9598/
 
 
 5. `instructions for use`
@@ -47,7 +47,7 @@ nohup It means to run the command without hanging up, and the program will still
 Please feel free to enjoy and participate in open source
 
 #### Donate
-Open source is not easy, please encourage! (Note: Please note the web-shell donation and title for donation, thank you!)
+Open source is not easy, please encourage! (Note: If this project is helpful to you, please donate to show your support, thank you! Please note the web-shell donation and title for donation, thank you!)
 
 | Alipay  | Wechat  |
 | :------------: | :------------: |
