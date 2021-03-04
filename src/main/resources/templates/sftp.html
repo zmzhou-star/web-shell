@@ -35,6 +35,7 @@
                     <th>组</th>
                     <th>文件大小</th>
                     <th>修改时间</th>
+                    <th>操作</th>
                 </tr>
             </table>
         </div>
@@ -47,8 +48,11 @@ $(function () {
     let urlParams = window.location.search;
     history.replaceState(null, null, url.replace(urlParams, ""))
     const login = [[${login}]];
-    if (!login) {
-        alert("登录失败，请重新连接SFTP服务！")
+    if (!login && window.confirm("登录失败，请重新连接SFTP服务！")) {
+        // 关闭页面
+        window.opener = null;
+        window.open('', '_self');
+        window.close();
     }
     $("#file").change(function () {
         if($(this).val() !== ""){
@@ -93,7 +97,7 @@ $(function () {
             let pid = id.substring(0, id.lastIndexOf('/', id.lastIndexOf('/') - 1) + 1).replace(/(\/*$)/g,"") || '/';
             fileDetail = "<tr class='data-cell'><td class='file-name jstree-default' id='" + pid + "'>" +
                 "<i class='jstree-icon jstree-folder'></i>..</td><td>上级目录</td>" +
-                "<td></td><td></td><td></td><td></td><td></td><td></td></tr>";
+                "<td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>";
         }
         for (const d in data) {
             let item = data[d];
@@ -111,7 +115,8 @@ $(function () {
             fileDetail += "<td>"+ item.owner +"</td>";
             fileDetail += "<td>"+ item.group +"</td>";
             fileDetail += "<td>"+ item.size +"</td>";
-            fileDetail += "<td>"+ item.modifiedDate +"</td></tr>";
+            fileDetail += "<td>"+ item.modifiedDate +"</td>";
+            fileDetail += "<td><button class='delete-data' value='" + item.id + "'>删除</button></td></tr>";
         }
         $(".file-detail-table").append(fileDetail);
         $('.data-cell .file-name').bind('click', function() {
@@ -127,14 +132,32 @@ $(function () {
         }).bind('dblclick', function() {
             let tree = $fileTree.jstree(true);
             let val = $(this).attr('id');
-            tree.select_node(val);
             let file = tree.get_node(val)
             // 双击 除文件夹外都下载
             if (file && "jstree-folder" !== file.icon) {
                 window.open(window.location.origin + "/sftp/download?path=" + val, '_blank')
             }
         });
+
+        // 删除数据
+        $('.delete-data').bind('click', function() {
+            let val = $(this).attr("value");
+            if(window.confirm('你确定要删除“' + val + '”吗？')){
+                $.ajax({
+                    url : "/sftp",
+                    type : "delete",
+                    dataType : "json",
+                    data: { path: val },
+                    success: function(res) {
+                        console.log(res)
+                        checkErr(res)
+                        refreshTree();
+                    }
+                });
+            }
+        });
     }
+    
     // 根目录
     let rootDirectory = { "id": "/", "parent": "#", "text": "/", "icon": "jstree-folder", 'state': { 'opened': true }}
 

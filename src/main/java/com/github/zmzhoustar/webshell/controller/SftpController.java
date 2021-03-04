@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -77,7 +78,7 @@ public class SftpController {
 	 * @date 2021/3/2 23:07
 	 */
 	@PostMapping("/upload")
-	public String upload(HttpServletRequest request) {
+	public ApiResult<String> upload(HttpServletRequest request) {
 		List<MultipartFile> files = ((MultipartHttpServletRequest) request).getFiles("file");
 		String sessionId = WebShellUtils.getSessionId();
 		log.info("sessionId：{}", sessionId);
@@ -102,7 +103,8 @@ public class SftpController {
 				sftpUtils.logout();
 			}
 		}
-		return res.get();
+		ApiResult<String> result = ApiResult.builder();
+		return result.data(res.get());
 	}
 
 	/**
@@ -148,5 +150,35 @@ public class SftpController {
 				sftpUtils.logout();
 			}
 		}
+	}
+	
+	/**
+	 * 删除文件 
+	 * @param path 文件路径
+	 * @return 删除结果
+	 * @author zmzhou
+	 * @date 2021/3/4 21:05
+	 */
+	@DeleteMapping
+	public ApiResult<String> deleteFile(String path){
+		ApiResult<String> result = ApiResult.builder();
+		if (StringUtils.isBlank(path)) {
+			return result.error(404, "文件路径为空！");
+		}
+		String sessionId = WebShellUtils.getSessionId();
+		log.info("sessionId：{}，删除文件path：{}", sessionId, path);
+		// 存放ssh连接信息
+		WebShellData sshData = EhCacheUtils.get(sessionId);
+		if (sshData != null) {
+			SftpUtils sftpUtils = new SftpUtils(sshData);
+			if (sftpUtils.login()) {
+				// 删除文件
+				if (!sftpUtils.delete(path)) {
+					return result.error(500, "删除文件失败！");
+				}
+				sftpUtils.logout();
+			}
+		}
+		return result.data("删除成功!");
 	}
 }

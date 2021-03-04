@@ -8,8 +8,6 @@
     <link rel="stylesheet" th:href="@{/static/css/xterm.css}" />
     <link rel="stylesheet" th:href="@{/static/css/webShell.css}" />
     <script type="text/javascript" th:src="@{/static/js/xterm.js}"></script>
-    <script type="text/javascript" th:src="@{/static/js/xterm-addon-fit.js}"></script>
-    <script type="text/javascript" th:src="@{/static/js/xterm-addon-attach.js}"></script>
     <script type="text/javascript" th:src="@{/static/js/jquery-3.5.1.min.js}"></script>
     <script type="text/javascript" th:src="@{/static/js/web-socket.js}"></script>
     <script type="text/javascript" th:src="@{/static/js/crypto-js.min.js}"></script>
@@ -57,11 +55,11 @@
         tabStopWidth: 8, //制表宽度
         screenKeys: true, //Xterm下的快捷键
         theme: {
-            foreground: 'LightGreen', //字体,LightMagenta,LightGreen,Orange
-            background: '#060101', //背景色
+            foreground: '#58a6ff', //字体,LightGreen,Orange,SlateBlue,Magenta Purple Red Violet White Yellow
+            background: '#2B2B2B', //背景色
             // foreground: "#7e9192", //字体
             // background: "#002833", //背景色
-            cursor: "help", //设置光标
+            cursor: "Orange", //设置光标
             lineHeight: 16
         }
     });
@@ -91,7 +89,7 @@
             },
             onConnect: function () {
                 //连接主机
-                client.sendInitData(params);
+                client.send(params);
                 $("#login").hide();
                 $("#menu").show();
             },

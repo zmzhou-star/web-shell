@@ -64,8 +64,8 @@ h1{
     width: 300px;
     min-height: 20px;
     display: block;
-    background-color: #4a77d4;
-    border: 1px solid #3762bc;
+    background-color: #58a6ff;
+    border: 1px solid #37b6ff;
     color: #fff;
     padding: 9px 14px;
     font-size: 15px;
@@ -185,4 +185,10 @@ table.file-detail-table tr:hover{
     border-color: #78C3F3;
     color: #004974;
     text-decoration: none;
+}
+.delete-data {
+    background-color: #EA633E;
+    cursor: pointer;
+    color: white;
+    border: 0;
 }

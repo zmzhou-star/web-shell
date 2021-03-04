@@ -3,6 +3,7 @@ package com.github.zmzhoustar.webshell.utils;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -59,6 +60,7 @@ public final class SftpUtils {
 
 	/**
 	 * 构造器 基于密码认证
+	 *
 	 * @param sshData 用户名，密码，主机，端口
 	 * @author zmzhou
 	 * @date 2021/3/3 15:16
@@ -198,36 +200,66 @@ public final class SftpUtils {
 	}
 
 	/**
-	 * 删除文件
+	 * 删除文件或者空文件夹
 	 *
-	 * @param directory      SFTP服务器的文件路径
-	 * @param deleteFileName 删除的文件名称
+	 * @param directory SFTP服务器的文件路径
+	 * @param fileName  删除的文件名称
+	 * @return 删除结果
+	 * @author zmzhou
+	 * @date 2021/3/4 21:47
 	 */
-	public void delete(String directory, String deleteFileName) {
+	public boolean delete(String directory, String fileName) {
 		try {
 			channelSftp.cd(directory);
-			channelSftp.rm(deleteFileName);
+			// TODO 用户权限处理
+			if (isDirExists(directory + Constants.SEPARATOR + fileName)) {
+				// 删除空文件夹
+				channelSftp.rmdir(fileName);
+			} else {
+				channelSftp.rm(fileName);
+			}
+			log.info("删除文件：{}/{}成功", directory, fileName);
 		} catch (SftpException e) {
-			log.error("文件删除异常！", e);
+			log.error("删除文件异常：{}/{}", directory, fileName, e);
+			return false;
 		}
+		return true;
 	}
 
 	/**
-	 * 删除文件夹
+	 * 删除文件或者文件夹
 	 *
-	 * @param directory SFTP服务器的文件路径
+	 * @param path SFTP服务器的文件或者文件夹路径
+	 * @return 删除结果
+	 * @author zmzhou
+	 * @date 2021/3/4 21:47
 	 */
-	public void delete(String directory) {
-		Vector<?> vector = listFiles(directory);
-		vector.forEach(v -> {
-			ChannelSftp.LsEntry lsEntry = (ChannelSftp.LsEntry) v;
-			try {
-				channelSftp.cd(directory);
-				channelSftp.rm(lsEntry.getFilename());
-			} catch (SftpException e) {
-				log.error("文件删除异常！", e);
-			}
-		});
+	public boolean delete(String path) {
+		AtomicBoolean delFlag = new AtomicBoolean(true);
+		Vector<?> vector = listFiles(path);
+		// 是文件或者空文件夹
+		if (isFileExists(path) || vector.isEmpty()) {
+			// 文件所在目录
+			String directory = path.substring(0, path.lastIndexOf(Constants.SEPARATOR));
+			// 文件名
+			String fileName = path.substring(path.lastIndexOf(Constants.SEPARATOR) + 1);
+			return delete(directory, fileName);
+		} else if (isDirExists(path)) {
+			// 1.先循环删除子文件
+			vector.forEach(v -> {
+				ChannelSftp.LsEntry lsEntry = (ChannelSftp.LsEntry) v;
+				// 如果是文件夹，递归删除
+				if (FileType.DIRECTORY.getSign().equals(lsEntry.getLongname().substring(0, 1))) {
+					delFlag.set(delete(path + Constants.SEPARATOR + lsEntry.getFilename()));
+				} else {
+					// 删除文件
+					delFlag.set(delete(path, lsEntry.getFilename()));
+				}
+			});
+			// 2.再删除空文件夹
+			delFlag.set(delete(path));
+		}
+		return delFlag.get();
 	}
 
 	/**
@@ -319,6 +351,7 @@ public final class SftpUtils {
 
 	/**
 	 * 判断文件是否存在
+	 *
 	 * @param filePath 文件路径
 	 * @return 文件是否存在
 	 * @author zmzhou
