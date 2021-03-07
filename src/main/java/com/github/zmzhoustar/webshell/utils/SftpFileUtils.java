@@ -67,6 +67,21 @@ public final class SftpFileUtils {
 		return fileTree;
 	}
 	/**
+	 * 获取文件所属用户
+	 * @param longName 文件详情
+	 * @return 文件所属用户
+	 * @author zmzhou
+	 * @date 2021/3/7 19:37
+	 */
+	public static String getOwner(String longName){
+		// 正则匹配长文件详情
+		Matcher m = FILE_PATTERN.matcher(longName);
+		if (m.find()) {
+			return m.group(3);
+		}
+		return "";
+	}
+	/**
 	 * 私有构造器
 	 * @author zmzhou
 	 * @date 2021/2/28 21:53

@@ -49,9 +49,10 @@ function uploadFile() {
 function checkErr(data) {
     if (data.code === 200) {
         showTips("操作成功！");
-    } else {
-        showTips("操作失败！" + data.msg);
+        return true;
     }
+    showTips("操作失败！" + data.msg);
+    return false;
 }
 
 /**

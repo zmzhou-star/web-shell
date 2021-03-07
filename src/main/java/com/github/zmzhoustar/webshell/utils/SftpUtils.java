@@ -208,19 +208,26 @@ public final class SftpUtils {
 	 * @author zmzhou
 	 * @date 2021/3/4 21:47
 	 */
-	public boolean delete(String directory, String fileName) {
+	private boolean delete(String directory, String fileName) {
+		String file = directory + Constants.SEPARATOR + fileName;
 		try {
+			ChannelSftp.LsEntry lsEntry = (ChannelSftp.LsEntry) listFiles(file).get(0);
+			// 用户权限处理
+			if (!(Constants.USER_ROOT.equals(username) 
+					|| username.equals(SftpFileUtils.getOwner(lsEntry.getLongname())))) {
+				log.warn("用户{}没有权限删除文件：{}", username, file);
+				return false;
+			}
 			channelSftp.cd(directory);
-			// TODO 用户权限处理
-			if (isDirExists(directory + Constants.SEPARATOR + fileName)) {
+			if (isDirExists(file)) {
 				// 删除空文件夹
 				channelSftp.rmdir(fileName);
 			} else {
 				channelSftp.rm(fileName);
 			}
-			log.info("删除文件：{}/{}成功", directory, fileName);
+			log.info("删除文件：{}成功", file);
 		} catch (SftpException e) {
-			log.error("删除文件异常：{}/{}", directory, fileName, e);
+			log.error("删除文件异常：{}", file, e);
 			return false;
 		}
 		return true;
@@ -272,7 +279,7 @@ public final class SftpUtils {
 	 */
 	public Vector<?> listFiles(String directory) {
 		try {
-			if (isDirExists(directory)) {
+			if (isDirExists(directory) || isFileExists(directory)) {
 				Vector<?> vector = channelSftp.ls(directory);
 				//移除上级目录和根目录："." ".."
 				Iterator<?> it = vector.iterator();

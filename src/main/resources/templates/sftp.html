@@ -149,9 +149,9 @@ $(function () {
                     dataType : "json",
                     data: { path: val },
                     success: function(res) {
-                        console.log(res)
-                        checkErr(res)
-                        refreshTree();
+                        if (checkErr(res)) {
+                            refreshTree();
+                        }
                     }
                 });
             }

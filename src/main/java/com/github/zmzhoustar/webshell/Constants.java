@@ -24,6 +24,8 @@ public final class Constants {
      * 上级目录
      */
     public static final String PARENT_DIRECTORY = "..";
+    /** root用户 */
+    public static final String USER_ROOT = "root";
     /**
      * 缓存字符长度
      */
