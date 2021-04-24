@@ -23,6 +23,14 @@
             <input type="text" id="port" value="22" required="required" placeholder="端口" />
             <button class="button" type="submit">登录</button>
         </form>
+        <p class="github-star">
+            <a href="https://github.com/zmzhou-star/web-shell" target="_blank" rel="noopener">
+                <img src="https://badgen.net/github/stars/zmzhou-star/web-shell?icon=github&color=4ab8a1" data-origin="https://badgen.net/github/stars/zmzhou-star/web-shell?icon=github&color=4ab8a1" alt="stars">
+            </a>
+            <a href="https://github.com/zmzhou-star/web-shell" target="_blank" rel="noopener">
+                <img src="https://badgen.net/github/forks/zmzhou-star/web-shell?icon=github&color=4ab8a1" data-origin="https://badgen.net/github/forks/zmzhou-star/web-shell?icon=github&color=4ab8a1" alt="forks">
+            </a>
+        </p>
     </div>
     <div id="menu" class="menu" style="display: none">
         <label>菜单</label>
@@ -37,6 +45,9 @@
         if (!url.endsWith("/?#")) {
             window.location.href = url + "?#";
         }
+        let num1 = Math.round(Math.random()* 360);
+        let num2 = Math.round(Math.random()* 360);
+        $('body').css({background: 'linear-gradient(to left bottom, hsl(' + num1 + ', 100%, 85%) 0%,hsl(' + num2 + ', 100%, 85%) 100%)'})
     })
     // 获取容器宽高/字号大小，定义行数和列数
     let rows = document.querySelector(".indexContainer").offsetHeight / 16 - 5;
