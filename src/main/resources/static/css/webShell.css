@@ -12,11 +12,11 @@ body{
     height: calc(100% - 30px);
 }
 .menu {
-    color: #fff;
+    color: #34495e;
     width: 100%;
     height: 30px;
     line-height: 30px;
-    background-color: slategray;
+    background-color: rgba(243, 242, 238, 1) !important;
 }
 .menu div {
     padding: 0 10px;
