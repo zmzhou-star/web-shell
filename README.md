@@ -50,10 +50,11 @@ nohup 意思是不挂断运行命令,当账户退出或终端关闭时,程序仍
 #### 捐赠
 开源不易，请多鼓励！（注：如果该项目对您有帮助，请捐赠以表示支持，谢谢！捐赠请备注web-shell捐赠和称呼哦，谢谢！）
 
-| 支付宝  | 微信  |
+| 支付宝 | 微信 |
 | :------------: | :------------: |
-| ![Alipay](docs/alipay.png)  | ![Wechat](docs/wechatpay.png)  |
+| ![Alipay](docs/alipay.png) | ![Wechat](docs/wechatpay.png) |
 
 #### 联系作者
 email：<a href="mailto:zmzhou-star@foxmail.com">Contact zmzhou-star</a>
 
+微信公众号：![微信公众号](docs/wechat-zmzhou-star.png)
