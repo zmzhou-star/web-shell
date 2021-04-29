@@ -1,0 +1,8 @@
+${AnsiColor.BLUE}
+                  __                  __           __ __
+ _      __ ___   / /_          _____ / /_   ___   / // /
+| | /| / // _ \ / __ \ ______ / ___// __ \ / _ \ / // /
+| |/ |/ //  __// /_/ //_____/(__  )/ / / //  __// // /
+|__/|__/ \___//_.___/       /____//_/ /_/ \___//_//_/
+application.formatted-version:${application.formatted-version}
+spring-boot.formatted-version:${spring-boot.formatted-version}

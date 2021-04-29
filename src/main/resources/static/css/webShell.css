@@ -12,11 +12,11 @@ body{
     height: calc(100% - 30px);
 }
 .menu {
-    color: #fff;
+    color: #34495e;
     width: 100%;
     height: 30px;
     line-height: 30px;
-    background-color: slategray;
+    background-color: rgba(243, 242, 238, 1) !important;
 }
 .menu div {
     padding: 0 10px;
@@ -37,9 +37,9 @@ body{
     width: 300px;
     height: 300px;
 }
-#login h1{
-    color: #fff;
-    text-shadow: 0 0 10px;
+.login h1{
+    color: #34495e;
+    text-shadow: 0 0 5px;
     letter-spacing: 1px;
     text-align: center;
 }
@@ -191,4 +191,13 @@ table.file-detail-table tr:hover{
     cursor: pointer;
     color: white;
     border: 0;
+}
+.github-star a {
+    padding: 10px;
+}
+.github-star {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
 }
