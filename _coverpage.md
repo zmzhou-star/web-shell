@@ -22,4 +22,4 @@
 
 [Gitee](<https://gitee.com/zmzhou-star/web-shell>)
 [Github](<https://github.com/zmzhou-star/web-shell>)
-[开始学习](README.md)
+[Get Start](README.md)
