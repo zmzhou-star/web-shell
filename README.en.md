@@ -43,7 +43,7 @@ nohup It means to run the command without hanging up, and the program will still
 ![sftp](docs/sftp.png)
 
 #### License
-[The Apache-2.0 License](http://www.apache.org/licenses/LICENSE-2.0)
+[The Apache-2.0 License](LICENSE)
 
 Please feel free to enjoy and participate in open source
 

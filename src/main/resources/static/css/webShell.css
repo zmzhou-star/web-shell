@@ -193,7 +193,7 @@ table.file-detail-table tr:hover{
     border: 0;
 }
 .github-star a {
-    padding: 10px;
+    padding: 10px 10px 0;
 }
 .github-star {
     display: flex;
