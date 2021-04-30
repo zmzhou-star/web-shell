@@ -43,7 +43,7 @@ nohup 意思是不挂断运行命令,当账户退出或终端关闭时,程序仍
 ![sftp页面](docs/sftp.png)
 
 #### License
-[The Apache-2.0 License](http://www.apache.org/licenses/LICENSE-2.0)
+[The Apache-2.0 License](./LICENSE)
 
 请自由地享受和参与开源
 
