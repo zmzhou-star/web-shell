@@ -6,10 +6,11 @@
 
 <script>
   export default {
-    name: 'electron-shell'
+    name: 'App'
   }
 </script>
 
 <style>
   /* CSS */
+  @import './styles/index.scss';
 </style>
