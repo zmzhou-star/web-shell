@@ -1,4 +1,4 @@
-# web shell 登录Linux远程主机
+# web-shell
 > An awesome project.
 
 ## 介绍
