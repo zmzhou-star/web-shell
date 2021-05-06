@@ -22,13 +22,20 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
-			<exclusions>
+			<!--<exclusions>
 				<exclusion>
 					<artifactId>spring-boot-starter-logging</artifactId>
 					<groupId>org.springframework.boot</groupId>
 				</exclusion>
-			</exclusions>
+			</exclusions>-->
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/net.logstash.logback/logstash-logback-encoder -->
+		<dependency>
+			<groupId>net.logstash.logback</groupId>
+			<artifactId>logstash-logback-encoder</artifactId>
+			<version>6.6</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -38,10 +45,10 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-websocket</artifactId>
 		</dependency>
-		<dependency>
+		<!--<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-log4j2</artifactId>
-		</dependency>
+		</dependency>-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-cache</artifactId>
