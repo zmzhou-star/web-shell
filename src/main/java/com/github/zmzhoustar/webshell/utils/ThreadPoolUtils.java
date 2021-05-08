@@ -9,7 +9,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 线程工具类
+ * 线程池工具类
  *
  * @author zmzhou
  * @version 1.0
@@ -82,6 +82,10 @@ public final class ThreadPoolUtils {
 					threadPool.setMaxPoolSize(threadNum + 1);
 					// 队列已满,而且当前线程数已经超过最大线程数时的异常处理策略 来电运行政策
 					threadPool.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+					//用来设置线程池关闭的时候等待所有任务都完成再继续销毁其他的Bean，这样这些异步任务的销毁就会先于Redis线程池的销毁。
+					threadPool.setWaitForTasksToCompleteOnShutdown(true);
+					//该方法用来设置线程池中任务的等待时间，如果超过这个时候还没有销毁就强制销毁，以确保应用最后能够被关闭，而不是阻塞住。
+					threadPool.setAwaitTerminationSeconds(30);
 					// 初始化
 					threadPool.initialize();
 					log.info("创建线程池完成:{}", threadPool.toString());
@@ -89,5 +93,17 @@ public final class ThreadPoolUtils {
 			}
 		}
 		return threadPool;
+	}
+
+	/**
+	 * 停止线程池任务
+	 * @author zmzhou
+	 * @since 2021/5/7 17:12
+	 */
+	public static void shutdown() {
+		if (threadPool != null) {
+			threadPool.shutdown();
+			log.info("关闭线程池");
+		}
 	}
 }

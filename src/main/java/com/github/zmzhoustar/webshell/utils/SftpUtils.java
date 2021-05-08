@@ -128,17 +128,13 @@ public final class SftpUtils {
 	 * 关闭SFTP连接
 	 */
 	public void logout() {
-		if (channelSftp != null) {
-			if (channelSftp.isConnected()) {
-				channelSftp.disconnect();
-				log.debug("sftp closed");
-			}
+		if (channelSftp != null && channelSftp.isConnected()) {
+			channelSftp.disconnect();
+			log.debug("sftp closed");
 		}
-		if (session != null) {
-			if (session.isConnected()) {
-				session.disconnect();
-				log.debug("session closed");
-			}
+		if (session != null && session.isConnected()) {
+			session.disconnect();
+			log.debug("session closed");
 		}
 	}
 

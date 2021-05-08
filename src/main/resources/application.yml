@@ -51,8 +51,8 @@ spring:
       max-request-size: 500MB
 # 日志配置
 logging:
-#  config: classpath:log4j2.xml
-  config: classpath:logback-spring.xml
+  config: classpath:log4j2.xml
+#  config: classpath:logback-spring.xml
   level:
     web: INFO
     com.github.zmzhoustar: INFO
