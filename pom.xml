@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.github.zmzhou-star</groupId>
 	<artifactId>web-shell</artifactId>
-	<version>1.0</version>
+	<version>1.0.1</version>
 	<name>web-shell</name>
 	<description>web-shell project for Spring Boot</description>
 	<properties>
