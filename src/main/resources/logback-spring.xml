@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <!--logstash地址，从application.properties中获取-->
+    <!-- logstash地址，从 application.yml 中获取-->
     <springProperty scope="context" name="LOGSTASH_ADDRESS" source="logstash.address"/>
     <!--日志在工程中的输出位置-->
     <property name="LOG_FILE" value="/opt/web-shell/logging"/>
