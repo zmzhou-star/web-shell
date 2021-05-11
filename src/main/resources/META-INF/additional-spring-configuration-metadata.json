@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "logstash.address",
+      "type": "java.lang.String",
+      "description": "logstash服务地址."
+  }
+] }

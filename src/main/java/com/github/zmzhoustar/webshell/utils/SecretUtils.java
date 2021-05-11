@@ -7,23 +7,24 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.util.Arrays;
+import java.util.Base64;
 
 import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.tomcat.util.codec.binary.Base64;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import lombok.extern.slf4j.Slf4j;
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
 
 /**
  * AES对称加密算法
- *
+ * - 算法种类
+ * 	- 对称算法（分组密码算法）：AES/DES/SM4
+ * 	- 非对称算法（公钥密码算法）：RSA/SM2
+ * 	- 摘要算法（杂凑算法）：MD5/SHA-I/SM3
+ * 	- 国密算法 SMx (SM2/SM3/SM4/SM9/ZUC等国密(国家商用密码))
  * @author zmzhou
  * @version 1.0
  * @date 2021/2/24 15:46
@@ -35,9 +36,9 @@ public final class SecretUtils {
 	 * 默认加密密钥
 	 */
 	public static final String AES_KEY = "ws9ybUMn4F81t5oPKqJrqLKxERaYAS12";
-	/** 算法 */
-	private static final String ALGORITHM = "AES/ECB/PKCS5Padding";
-
+	/** 算法 "算法/模式/补码方式" */
+	private static final String CIPHER_ALGORITHM = "AES/ECB/PKCS5Padding";
+	private static final String KEY_ALGORITHM = "AES";
 	/**
 	 * AES加密
 	 *
@@ -55,7 +56,7 @@ public final class SecretUtils {
 			//加密
 			byte[] encryptResult = cipher.doFinal(byteContent);
 			// 将加密后的数据转为BASE64字符串
-			return new BASE64Encoder().encode(encryptResult);
+			return Base64.getEncoder().encodeToString(encryptResult);
 		} catch (Exception e) {
 			log.error("AES加密时出现异常：[content：{};AESPwd：{}]", content, aesKey, e);
 		}
@@ -74,7 +75,7 @@ public final class SecretUtils {
 	public static String decrypt(String content, String aesKey) {
 		try {
 			// 先用base64解密
-			byte[] contentByte = new BASE64Decoder().decodeBuffer(content);
+			byte[] contentByte = Base64.getDecoder().decode(content);
 			// 创建密码器
 			Cipher cipher = getCipher(Cipher.DECRYPT_MODE, aesKey);
 			byte[] result = cipher.doFinal(contentByte);
@@ -97,11 +98,10 @@ public final class SecretUtils {
 	 */
 	private static Cipher getCipher(int decryptMode, String aesKey)
 			throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
-		KeyGenerator generator = KeyGenerator.getInstance("AES");
-		generator.init(128);
-		SecretKeySpec keySpec = new SecretKeySpec(aesKey.getBytes(), "AES");
+		Security.addProvider(new BouncyCastleProvider());
+		SecretKeySpec keySpec = new SecretKeySpec(aesKey.getBytes(), KEY_ALGORITHM);
 		// 创建密码器
-		Cipher cipher = Cipher.getInstance(ALGORITHM);
+		Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
 		// 初始化
 		cipher.init(decryptMode, keySpec);
 		return cipher;
@@ -116,9 +116,9 @@ public final class SecretUtils {
 	 * @date 2021/2/25 15:51
 	 */
 	public static String decrypt(String data, String sessionKey, String iv) {
-		byte[] dataByte = Base64.decodeBase64(data);
-		byte[] keyByte = Base64.decodeBase64(sessionKey);
-		byte[] ivByte = Base64.decodeBase64(iv);
+		byte[] dataByte = Base64.getDecoder().decode(data);
+		byte[] keyByte = Base64.getDecoder().decode(sessionKey);
+		byte[] ivByte = Base64.getDecoder().decode(iv);
 		int base = 16;
 		if (keyByte.length % base != 0) {
 			int groups = keyByte.length / base + 1;
@@ -130,8 +130,8 @@ public final class SecretUtils {
 		try {
 			Security.addProvider(new BouncyCastleProvider());
 			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7Padding", "BC");
-			SecretKeySpec spec = new SecretKeySpec(keyByte, "AES");
-			AlgorithmParameters parameters = AlgorithmParameters.getInstance("AES");
+			SecretKeySpec spec = new SecretKeySpec(keyByte, KEY_ALGORITHM);
+			AlgorithmParameters parameters = AlgorithmParameters.getInstance(KEY_ALGORITHM);
 			parameters.init(new IvParameterSpec(ivByte));
 			cipher.init(2, spec, parameters);
 			byte[] resultByte = cipher.doFinal(dataByte);

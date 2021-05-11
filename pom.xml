@@ -15,7 +15,7 @@
 	<description>web-shell project for Spring Boot</description>
 	<properties>
 		<java.version>1.8</java.version>
-		<spring-boot.version>2.4.4</spring-boot.version>
+		<spring-boot.version>2.4.5</spring-boot.version>
 		<boot-jar-output>./dist</boot-jar-output>
 	</properties>
 	<dependencies>
@@ -29,6 +29,13 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/net.logstash.logback/logstash-logback-encoder -->
+		<!--<dependency>
+			<groupId>net.logstash.logback</groupId>
+			<artifactId>logstash-logback-encoder</artifactId>
+			<version>6.6</version>
+		</dependency>-->
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -45,6 +52,11 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-cache</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.ehcache</groupId>
@@ -100,112 +112,23 @@
 		</dependency>
 	</dependencies>
 
-	<!--<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<excludes>
-						<exclude>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-						</exclude>
-					</excludes>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>-->
-
 	<build>
-		<finalName>${project.artifactId}</finalName>
-		<!--
-        特别注意：
-        项目仅仅是为了演示配置方便，直接在parent的build部分做了插件配置和运行定义。
-        但是实际项目中需要把这些定义只放到spring boot模块项目（可优化使用pluginManagement形式），避免干扰其他util、common等模块项目
-        -->
 		<plugins>
-			<!-- 基于maven-jar-plugin插件实现把依赖jar定义写入输出jar的META-INFO/MANIFEST文件 -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.2.0</version>
+				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-							<classpathPrefix>lib/</classpathPrefix>
-							<useUniqueVersions>false</useUniqueVersions>
-						</manifest>
-						<!--                        <manifestEntries>-->
-						<!--
-                        有些非官方三方的诸如sdk jar在pom中是以systemPath方式引入的，maven-jar-plugin组件没有直接参数声明包含指定scope的组件
-                        通过使用额外定义 Class-Path 值来追加指定依赖组件列表，在子模块按实际情况指定 jar-manifestEntries-classpath 值即可
-                        例如(注意前面个点字符及各空格分隔符)：. lib/xxx-1.0.0.jar lib/yyy-2.0.0.jar
-                        详见各子模块中 boot-jar-output 属性定义示例
-                        -->
-						<!--                            <Class-Path>${jar-manifestEntries-classpath}</Class-Path>-->
-						<!--                        </manifestEntries>-->
-					</archive>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+					<encoding>${project.build.sourceEncoding}</encoding>
 				</configuration>
 			</plugin>
-			<!-- 拷贝项目所有依赖jar文件到构建lib目录下 -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<version>3.1.2</version>
-				<executions>
-					<execution>
-						<id>copy-dependencies</id>
-						<phase>package</phase>
-						<goals>
-							<goal>copy-dependencies</goal>
-						</goals>
-
-						<configuration>
-							<!--
-                            各子模块按照实际层级定义各模块对应的属性值，检查所有微服务模块依赖jar文件合并复制到同一个目录
-                            详见各子模块中 boot-jar-output 属性定义
-                            -->
-							<outputDirectory>${boot-jar-output}/lib</outputDirectory>
-							<!--依赖传递-->
-							<excludeTransitive>false</excludeTransitive>
-							<stripVersion>false</stripVersion>
-							<silent>false</silent>
-							<!-- 只拷贝项目所有运行时需要的依赖jar文件 -->
-							<includeScope>runtime</includeScope>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<!-- Spring Boot模块jar构建 -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<version>${spring-boot.version}</version>
 				<configuration>
-					<excludes>
-						<exclude>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-						</exclude>
-					</excludes>
-					<includes>
-						<!-- 不存在的include引用，相当于排除所有maven依赖jar，没有任何三方jar文件打入输出jar -->
-						<include>
-							<groupId>nothing</groupId>
-							<artifactId>nothing</artifactId>
-						</include>
-					</includes>
-					<layout>ZIP</layout>
-					<!--使用外部配置文件，jar包里没有资源文件-->
-					<addResources>true</addResources>
-					<!--
-                    基于maven-jar-plugin输出微服务jar文件进行二次spring boot重新打包文件的输出目录
-                    所有微服务构建输出jar文件统一输出到与lib同一个目录，便于共同引用同一个lib目录
-                    详见各子模块中boot-jar-output属性定义
-                    -->
-					<outputDirectory>${boot-jar-output}</outputDirectory>
+					<fork>true</fork> <!-- 如果没有该配置，devtools不会生效 -->
 				</configuration>
 				<executions>
 					<execution>

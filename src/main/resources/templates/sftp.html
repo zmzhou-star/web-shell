@@ -2,8 +2,9 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="'web sftp ' + ${host}">web sftp</title>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title th:text="'web sftp ' + ${host}">web sftp</title>
     <link rel="shortcut icon" th:href="@{/static/img/favicon.ico}"/>
     <link rel="stylesheet" th:href="@{/static/css/webShell.css}"/>
     <link rel="stylesheet" th:href="@{/static/css/jstree/style.min.css}"/>
@@ -157,7 +158,7 @@ $(function () {
             }
         });
     }
-    
+
     // 根目录
     let rootDirectory = { "id": "/", "parent": "#", "text": "/", "icon": "jstree-folder", 'state': { 'opened': true }}
 

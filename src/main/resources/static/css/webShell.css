@@ -33,9 +33,9 @@ body{
     position: absolute;
     top: 50%;
     left: 50%;
-    margin: -150px 0 0 -150px;
+    transform: translate(-50%,-50%);
+    margin: 0 auto;
     width: 300px;
-    height: 300px;
 }
 .login h1{
     color: #34495e;
@@ -197,7 +197,8 @@ table.file-detail-table tr:hover{
 }
 .github-star {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    flex-direction: row;
     align-content: center;
     justify-content: center;
 }
