@@ -25,8 +25,8 @@ spring:
   # 服务模块
   devtools:
     restart:
-      # 热部署开关
-      enabled: true
+      # 热部署重启开关，不重启实现快速热部署
+      enabled: false
   web:
     resources:
       # 静态资源的配置位置，可以写成一个数组配置多个目录
