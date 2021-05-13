@@ -33,10 +33,17 @@
             <!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->
             <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY"/>
             <Policies>
-                <TimeBasedTriggeringPolicy/>
+                <!--设置每天打包日志一次-->
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <!--设置日志文件满100MB后打包 -->
                 <SizeBasedTriggeringPolicy size="100 MB"/>
             </Policies>
-            <DefaultRolloverStrategy max="${maxHistory}"/>
+            <DefaultRolloverStrategy max="${maxHistory}">
+                <Delete basePath="${LOG_HOME}/$${date:yyyy-MM}/" maxDepth="2">
+                    <IfFileName glob="*.log.gz"/>
+                    <IfLastModified age="${maxHistory}d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
         </RollingFile>
         <!-- 打印出所有的warn信息，每次大小超过size，则这size大小的日志会自动存入按年份-月份建立的文件夹下面并进行压缩，作为存档 -->
         <RollingFile name="warnRollingFile" fileName="${LOG_HOME}/warn.log"
@@ -45,10 +52,17 @@
             <!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->
             <ThresholdFilter level="warn" onMatch="ACCEPT" onMismatch="DENY"/>
             <Policies>
-                <TimeBasedTriggeringPolicy/>
+                <!--设置每天打包日志一次-->
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <!--设置日志文件满100MB后打包 -->
                 <SizeBasedTriggeringPolicy size="100 MB"/>
             </Policies>
-            <DefaultRolloverStrategy max="${maxHistory}"/>
+            <DefaultRolloverStrategy max="${maxHistory}">
+                <Delete basePath="${LOG_HOME}/$${date:yyyy-MM}/" maxDepth="2">
+                    <IfFileName glob="*.log.gz"/>
+                    <IfLastModified age="${maxHistory}d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
         </RollingFile>
         <!-- 打印出所有的info信息，每次大小超过size，则这size大小的日志会自动存入按年份-月份建立的文件夹下面并进行压缩，作为存档 -->
         <RollingFile name="infoRollingFile" fileName="${LOG_HOME}/info.log"
@@ -56,10 +70,17 @@
             <PatternLayout pattern="${pattern}"/>
             <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY"/>
             <Policies>
-                <TimeBasedTriggeringPolicy/>
+                <!--设置每天打包日志一次-->
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <!--设置日志文件满100MB后打包 -->
                 <SizeBasedTriggeringPolicy size="100 MB"/>
             </Policies>
-            <DefaultRolloverStrategy max="${maxHistory}"/>
+            <DefaultRolloverStrategy max="${maxHistory}">
+                <Delete basePath="${LOG_HOME}/$${date:yyyy-MM}/" maxDepth="1">
+                    <IfFileName glob="*.log.gz"/>
+                    <IfLastModified age="${maxHistory}d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
         </RollingFile>
     </appenders>
 
