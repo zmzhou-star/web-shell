@@ -1,3 +1,7 @@
+/*
+ * Copyright © 2020-present zmzhou-star. All Rights Reserved.
+ */
+
 package com.github.zmzhoustar.webshell.utils;
 
 import org.springframework.web.socket.WebSocketSession;
@@ -12,7 +16,10 @@ import com.github.zmzhoustar.webshell.Constants;
  * @date 2021/2/23 20:45
  */
 public final class WebShellUtils {
-	/**
+    private WebShellUtils() {
+    }
+
+    /**
 	 * 从WebSocketSession获取用户名
 	 * @param webSocketSession WebSocketSession
 	 * @author zmzhou

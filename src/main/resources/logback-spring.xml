@@ -2,6 +2,7 @@
 <configuration>
     <!-- logstash地址，从 application.yml 中获取-->
     <springProperty scope="context" name="LOGSTASH_ADDRESS" source="logstash.address"/>
+    <springProperty scope="context" name="APPLICATION_NAME" source="spring.application.name"/>
     <!--日志在工程中的输出位置-->
     <property name="LOG_FILE" value="/opt/web-shell/logging"/>
     <!-- 彩色日志依赖的渲染类 -->
@@ -56,7 +57,7 @@
                 <pattern>
                     <pattern>
                         {
-                        "app": "elk1",
+                        "app": "${APPLICATION_NAME}",
                         "level": "%level",
                         "thread": "%thread",
                         "logger": "%logger{50} %M %L ",

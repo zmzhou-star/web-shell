@@ -1,3 +1,7 @@
+/*
+ * Copyright © 2020-present zmzhou-star. All Rights Reserved.
+ */
+
 package com.github.zmzhoustar.webshell.utils;
 
 /**

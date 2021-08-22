@@ -1,3 +1,7 @@
+/*
+ * Copyright © 2020-present zmzhou-star. All Rights Reserved.
+ */
+
 package com.github.zmzhoustar.webshell;
 
 import org.springframework.boot.SpringApplication;
@@ -16,7 +20,6 @@ import com.github.zmzhoustar.webshell.utils.ThreadPoolUtils;
 @SpringBootApplication
 @EnableCaching
 public class WebShellApplication {
-
 	public static void main(String[] args) {
 		// log4j2全局异步日志配置 http://logging.apache.org/log4j/2.x/manual/async.html#AllAsync
 		System.setProperty("Log4jContextSelector", "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
@@ -25,5 +28,4 @@ public class WebShellApplication {
 		// 停止应用时，关闭线程池钩子，或者使用 @PreDestroy 注解执行一系列操作
 		Runtime.getRuntime().addShutdownHook(new Thread(ThreadPoolUtils::shutdown, "ShutdownThreadPoolHook"));
 	}
-
 }

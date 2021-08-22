@@ -1,3 +1,7 @@
+/*
+ * Copyright © 2020-present zmzhou-star. All Rights Reserved.
+ */
+
 package com.github.zmzhoustar.webshell.config;
 
 import javax.annotation.Resource;
@@ -11,7 +15,7 @@ import com.github.zmzhoustar.webshell.handler.WebShellWebSocketHandler;
 import com.github.zmzhoustar.webshell.interceptor.WebSocketInterceptor;
 
 /**
- * websocket配置 
+ * websocket配置
  * @title WebSocketConfig
  * @author zmzhou
  * @version 1.0
@@ -22,7 +26,7 @@ import com.github.zmzhoustar.webshell.interceptor.WebSocketInterceptor;
 public class WebSocketConfig implements WebSocketConfigurer {
 	@Resource
 	private WebShellWebSocketHandler webSocketHandler;
-	
+
 	@Override
 	public void registerWebSocketHandlers(WebSocketHandlerRegistry webSocketHandlerRegistry) {
 		//socket通道

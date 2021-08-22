@@ -1,3 +1,7 @@
+/*
+ * Copyright © 2020-present zmzhou-star. All Rights Reserved.
+ */
+
 package com.github.zmzhoustar.webshell.controller;
 
 import org.springframework.stereotype.Controller;
@@ -23,7 +27,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Controller
 public class RouterController {
-
 	/**
 	 * index
 	 * @author zmzhou

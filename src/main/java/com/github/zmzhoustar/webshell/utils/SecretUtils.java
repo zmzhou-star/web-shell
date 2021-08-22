@@ -1,5 +1,8 @@
-package com.github.zmzhoustar.webshell.utils;
+/*
+ * Copyright © 2020-present zmzhou-star. All Rights Reserved.
+ */
 
+package com.github.zmzhoustar.webshell.utils;
 
 import java.nio.charset.StandardCharsets;
 import java.security.AlgorithmParameters;
@@ -31,7 +34,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public final class SecretUtils {
-
 	/**
 	 * 默认加密密钥
 	 */

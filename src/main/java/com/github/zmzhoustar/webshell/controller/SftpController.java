@@ -1,3 +1,7 @@
+/*
+ * Copyright © 2020-present zmzhou-star. All Rights Reserved.
+ */
+
 package com.github.zmzhoustar.webshell.controller;
 
 import java.io.BufferedInputStream;
@@ -44,7 +48,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/sftp")
 @RestController
 public class SftpController {
-
 	/**
 	 * 获取文件列表
 	 * @param path 路径
@@ -151,9 +154,9 @@ public class SftpController {
 			}
 		}
 	}
-	
+
 	/**
-	 * 删除文件 
+	 * 删除文件
 	 * @param path 文件路径
 	 * @return 删除结果
 	 * @author zmzhou

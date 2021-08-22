@@ -1,3 +1,7 @@
+/*
+ * Copyright © 2020-present zmzhou-star. All Rights Reserved.
+ */
+
 package com.github.zmzhoustar.webshell.utils;
 
 import java.io.InputStream;
@@ -209,7 +213,7 @@ public final class SftpUtils {
 		try {
 			ChannelSftp.LsEntry lsEntry = (ChannelSftp.LsEntry) listFiles(file).get(0);
 			// 用户权限处理
-			if (!(Constants.USER_ROOT.equals(username) 
+			if (!(Constants.USER_ROOT.equals(username)
 					|| username.equals(SftpFileUtils.getOwner(lsEntry.getLongname())))) {
 				log.warn("用户{}没有权限删除文件：{}", username, file);
 				return false;
