@@ -1,7 +1,13 @@
 # web-shell [国内站点](https://gitee.com/zmzhou-star/web-shell)
 [English version](README.en.md)
 
-#### 介绍
+> 作者的个人微信公众号：[Java程序员ZZM](https://gitee.com/zmzhou-star/learnotes/raw/master/docs/wechat-zmzhou-star.png) 关注我不迷路
+
+> 个人网站：[https://www.zmzhou-star.cn](https://www.zmzhou-star.cn)
+
+> 学习笔记：[https://zmzhou-star.github.io/learnotes](https://zmzhou-star.github.io/learnotes)
+
+## 介绍
 纯Java实现一个web shell登录Linux远程主机，技术选型 SpringBoot + WebSocket + jsch + xterm.js
 
 #### 软件架构说明
